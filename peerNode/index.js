@@ -12,7 +12,7 @@ module.exports = {
       wrtc)
   }
 }
-
+process.env.HEADLESS = true 
 if (require.main === module) {
   module.exports.main()
 }
