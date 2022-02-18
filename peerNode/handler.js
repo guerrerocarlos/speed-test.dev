@@ -8,7 +8,7 @@ async function invokeLambda() {
     FunctionName: process.env.FUNCTION_NAME, // the lambda function we are going to invoke
     InvokeArgs: '{"action": "run"}'
   };
-  console.log("invoke!")
+  console.log("invoke!", params)
   await lambda.invokeAsync(params).promise
 }
 
