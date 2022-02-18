@@ -3,6 +3,7 @@ const config = {
   "frameworkVersion": "3",
   "provider": {
     "name": "aws",
+    "timeout": 30,
     "runtime": "nodejs12.x",
     "stage": "dev",
     "region": "eu-west-3",
