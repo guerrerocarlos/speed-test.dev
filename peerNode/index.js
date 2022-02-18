@@ -7,8 +7,8 @@ const peerNode = require("./peer.js")
 
 module.exports = {
   init: (event) => {
-    console.log("🚀", JSON.strigify(event, null, 2))
-
+    console.log("🚀", JSON.stringify(event, null, 2))
+                           
     peerNode(SimplePeer,
       WebSocket,
       wrtc)
