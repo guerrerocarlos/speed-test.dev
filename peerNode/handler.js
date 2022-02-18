@@ -14,11 +14,12 @@ async function invokeLambda() {
 }
 
 module.exports = {
-  init: async (event) => {
+  init: async (event, ctx) => {
+    ctx.callbackWaitsForEmptyEventLoop = true
     console.log("🚀", JSON.stringify(event, null, 2))
 
     if (event.action === "run") {
-      peerNode.main()
+      await peerNode.main()
     } else {
       await invokeLambda()
     }

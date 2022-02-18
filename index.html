@@ -31,6 +31,8 @@
   .text {
     margin-left: 10px;
     margin-right: 10px;
+    margin-top: 7px;
+    margin-bottom: 7px;
   }
 
 </style>
@@ -60,38 +62,50 @@
 <script>
   const template1 = document.getElementById("boxTemplate1")
 
+
+  function newPeer(peerId) {
+    console.log("NEW PEER HTML", peerId)
+    let data = { name: peerId, latency: "?" }
+    let elem1 = document.createElement('div')
+    elem1.classList = ['node']
+
+    let elem2 = document.createElement('div')
+    elem2.classList = ['nodeContent', 'leftLabel']
+
+    let elem3 = document.createElement('div')
+    elem3.classList = ['text']
+
+    elem2.append(elem3)
+    elem1.append(elem2)
+
+    document.getElementById("boxes").appendChild(elem1)
+
+    let tools = {
+      setLatency: (ms) => {
+        data.latency = ms
+      },
+      render: () => {
+        elem3.innerHTML = [data.name, `${data.latency} ms.`].join("</br>") //"us-east-1</br>13ms"
+        setTimeout(() => {
+          elem3.innerHTML = [data.name, `${data.latency} ms`].join("</br>") //"us-east-1</br>13ms"
+        }, 100)
+      }
+    }
+
+    tools.render()
+
+    return tools
+  }
+
   peerNode(SimplePeer,
     WebSocket,
     wrtc,
     {
-      newPeer: function(peerId) {
-        let data = {"ms": "?"}
-        let elem1 = document.createElement('div')
-        elem1.classList = ['node']
-
-        let elem2 = document.createElement('div')
-        elem2.classList = ['nodeContent', 'leftLabel']
-
-        let elem3 = document.createElement('div')
-        elem3.classList = ['text']
-        elem3.innerHTML = "us-east-1</br>13ms"
-        // elem2.id = 
-
-        elem2.append(elem3)
-        elem1.append(elem2)
-
-        document.getElementById("boxes").appendChild(elem1)
-
-        return {
-          setLatency: (ms) => {
-            data["ms"] = ms
-          }
-        }
-      }
+      newPeer
     })
 
   for (let i = 0; i < 10; i++) {
-
+    newPeer(i)
   }
 
 </script>

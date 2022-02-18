@@ -50,8 +50,8 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
     })
 
     p.on('connect', () => {
-      console.log('CONNECTED')
-      if(html) html.newPeer(peer.peerId)
+      console.log('CONNECTED', peer.id)
+      if(html) peer.html = html.newPeer(peer.id)
       clearTimeout(isItDead)
       peer.connected = true
       for (let payload of sendQueue) {
@@ -108,6 +108,8 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
     },
     pong: (payload, peer) => {
       console.log("TOOK", new Date() - pings[payload], "miliseconds from", peer.id)
+      peer.html.setLatency(new Date() - pings[payload])
+      peer.html.render()
     },
     default: (payload, peer) => {
       console.log("GOT RAW", peer.id, payload)
