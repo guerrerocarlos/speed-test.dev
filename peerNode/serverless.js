@@ -28,13 +28,12 @@ const config = {
       },
     },
     'environment': {
-      'FUNCTION_NAME': 'node-speed-test-dev-process',
-      'AWS_REGION': 'eu-west-3'
+      'FUNCTION_NAME': 'node-speed-test-dev-process'
     },
   },
   "functions": {
     'process': {
-      'handler': "index.init",
+      'handler': "handler.init",
       'events': [
         {
           "http": {
