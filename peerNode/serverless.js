@@ -3,7 +3,6 @@ const config = {
   "frameworkVersion": "3",
   "provider": {
     "name": "aws",
-    "profile": "gcdefault",
     "runtime": "nodejs12.x",
     "stage": "dev",
     "region": "eu-west-3",
