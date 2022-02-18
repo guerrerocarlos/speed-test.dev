@@ -8,7 +8,7 @@ async function invokeLambda() {
     FunctionName: process.env.FUNCTION_NAME, // the lambda function we are going to invoke
     InvokeArgs: '{"action": "run"}'
   };
-
+  console.log("invoke!")
   await lambda.invokeAsync(params).promise
 }
 
@@ -19,7 +19,7 @@ module.exports = {
     if (event.action === "run") {
       main()
     } else {
-      invokeLambda()
+      await invokeLambda()
     }
 
     return {

@@ -12,16 +12,23 @@
   }
 
   .node {
-    width: 320px;
-    height: 200px;
+    /* width: 320px; */
+    width: auto;
+    /* height: 200px; */
     border: green;
     border-style: solid;
     border-radius: 5px 5px 5px 5px;
-
+    display: inline-block;
   }
 
   .nodeContent {
-    margin: 20px;
+    margin: 10px;
+    float: inherit;
+  }
+
+  .text {
+    margin-left: 10px;
+    margin-right: 10px;
   }
 
 </style>
@@ -31,8 +38,8 @@
     <h1 id="title">Connecting...</h1>
   </div>
   <div class="node">
-    <div class="nodeContent">
-      us-east-1$
+    <div class="nodeContent leftLabel">
+      <span class="text">us-east-1</span><span class="text">14ms</span>
     </div>
   </div>
 </body>
