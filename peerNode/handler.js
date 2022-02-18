@@ -9,7 +9,7 @@ async function invokeLambda() {
     InvokeArgs: '{"action": "run"}'
   };
   console.log("invoke!", params)
-  await lambda.invokeAsync(params).promise
+  await lambda.invokeAsync(params).promise()
 }
 
 module.exports = {
