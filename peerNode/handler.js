@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-AWS.config.region = process.ev.AWS_REGION;
+AWS.config.region = process.env.AWS_REGION;
 const lambda = new AWS.Lambda();
 const main = require("./") 
 
@@ -27,10 +27,4 @@ module.exports = {
       body: "INITED"
     }
   }
-}
-
-if (require.main === module) {
-  peerNode(SimplePeer,
-    WebSocket,
-    wrtc)
 }
