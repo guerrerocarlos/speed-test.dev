@@ -20,6 +20,7 @@
     border-radius: 5px 5px 5px 5px;
     display: inline-block;
     margin-top: 5px;
+    margin-right: 5px;
   }
 
   .nodeContent {
@@ -38,22 +39,16 @@
   <div id="main">
     <h1 id="title">Connecting...</h1>
   </div>
-  <div class="node">
+  <div id="boxes">
+  </div>
+
+  <div id="boxTemplate1" style="display: none;">
     <div class="nodeContent leftLabel">
-      <div class="text">us-east-1</div>
-      <div class="text">14ms</div>
-      <div class="text">3 peers</div>
-      <div class="text">13 Mbps</div>
+      <div id="id-text" class="text">us-east-1</br>14ms</div>
     </div>
   </div>
-  <div class="node">
-    <div class="nodeContent leftLabel">
-      <div class="text">us-east-1</div>
-      <div class="text">14ms</div>
-      <div class="text">3 peers</div>
-      <div class="text">13 Mbps</div>
-    </div>
-  </div>
+
+
 </body>
 
 <script>
@@ -63,9 +58,42 @@
 <script src="simplepeer.min.js"></script>
 <script src="peerNode/peer.js"></script>
 <script>
+  const template1 = document.getElementById("boxTemplate1")
+
   peerNode(SimplePeer,
     WebSocket,
-    wrtc)
+    wrtc,
+    {
+      newPeer: function(peerId) {
+        let data = {"ms": "?"}
+        let elem1 = document.createElement('div')
+        elem1.classList = ['node']
+
+        let elem2 = document.createElement('div')
+        elem2.classList = ['nodeContent', 'leftLabel']
+
+        let elem3 = document.createElement('div')
+        elem3.classList = ['text']
+        elem3.innerHTML = "us-east-1</br>13ms"
+        // elem2.id = 
+
+        elem2.append(elem3)
+        elem1.append(elem2)
+
+        document.getElementById("boxes").appendChild(elem1)
+
+        return {
+          setLatency: (ms) => {
+            data["ms"] = ms
+          }
+        }
+      }
+    })
+
+  for (let i = 0; i < 10; i++) {
+
+  }
+
 </script>
 
 </html>

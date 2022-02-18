@@ -1,5 +1,5 @@
 
-function peerNode(SimplePeer, WebSocket, wrtc) {
+function peerNode(SimplePeer, WebSocket, wrtc, html) {
   const socket = new WebSocket('wss://ua7u2vwiqh.execute-api.eu-west-3.amazonaws.com/dev', [])
 
   let peers = {}
@@ -21,7 +21,7 @@ function peerNode(SimplePeer, WebSocket, wrtc) {
     peers = newPeers
   }
 
-  function Peer(socket, peerId, opts) {
+  function Peer(socket, peerId, opts, html) {
     const sendQueue = []
     const listeners = []
 
@@ -51,6 +51,7 @@ function peerNode(SimplePeer, WebSocket, wrtc) {
 
     p.on('connect', () => {
       console.log('CONNECTED')
+      if(html) html.newPeer(peer.peerId)
       clearTimeout(isItDead)
       peer.connected = true
       for (let payload of sendQueue) {
@@ -136,7 +137,7 @@ function peerNode(SimplePeer, WebSocket, wrtc) {
       // console.log("💊 GOT SIGNAL", "from", payload.fromPeerId, "data:", peers[payload.fromPeerId])
 
       if (!peers[payload.fromPeerId]) {
-        peers[payload.fromPeerId] = new Peer(socket, payload.fromPeerId, { receiver: true })
+        peers[payload.fromPeerId] = new Peer(socket, payload.fromPeerId, { receiver: true }, html)
       }
 
       peers[payload.fromPeerId].signal(payload.data)
@@ -144,7 +145,7 @@ function peerNode(SimplePeer, WebSocket, wrtc) {
 
     if (payload.peerIds) {
       for (let peerId of payload.peerIds) {
-        peers[peerId] = new Peer(socket, peerId)
+        peers[peerId] = new Peer(socket, peerId, {}, html)
       }
     }
 
