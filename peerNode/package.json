@@ -1,0 +1,18 @@
+{
+  "name": "speed-test-dev",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "deploy": "serverless deploy",
+    "package": "serverless package"
+  },
+  "dependencies": {
+    "simple-peer": "^9.11.0",
+    "wrtc": "^0.4.7",
+    "ws": "^8.5.0"
+  },
+  "devDependencies": {
+    "serverless": "^3.2.1"
+  }
+}

@@ -1,0 +1,65 @@
+<html>
+
+<body>
+  <style>
+    #outgoing {
+      width: 600px;
+      word-wrap: break-word;
+      white-space: normal;
+    }
+
+  </style>
+  <form>
+    <textarea id="incoming"></textarea>
+    <button type="submit">submit</button>
+  </form>
+  <pre id="outgoing"></pre>
+  <script src="simplepeer.min.js"></script>
+  <script>
+    const Peer = SimplePeer
+    var peer1 = new Peer({ initiator: true })
+    var peer2 = new Peer()
+
+    peer1.on('signal', data => {
+      // when peer1 has signaling data, give it to peer2 somehow
+      console.log("1", JSON.stringify(data))
+      peer2.signal(data)
+    })
+
+    peer2.on('signal', data => {
+      // when peer2 has signaling data, give it to peer1 somehow
+      console.log("2", data)
+      peer1.signal(data)
+    })
+
+    let size = 150
+    let increment = true
+    peer1.on('connect', () => {
+      // wait for 'connect' event before using the data channel
+      setInterval(() => {
+        try {
+          peer1.send(new ArrayBuffer(size += (increment ? 10 : 0)))
+        } catch (err) {
+          // console.log(err)
+          size -= 20
+          // increment = false
+        }
+      }, 0)
+      // peer1.send(buf)
+    })
+
+    let got = ""
+    peer2.on('data', data => {
+      // got a data channel message
+      got += data
+    })
+
+    setInterval(() => {
+      // peer1.send('hey peer2, how is it going?')
+      console.log('Received', size, got.length / 1024 / 1024, "Mb/s")
+      got = ""
+    }, 1000)
+  </script>
+</body>
+
+</html>
