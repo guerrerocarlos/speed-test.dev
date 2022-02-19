@@ -45,6 +45,8 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
     })
 
     p.on('signal', data => {
+      if(html) peer.html = html.newPeer(peer.id)
+
       const payload = { event: "signal", toPeerId: peerId, data }
       // console.log('SEND SIGNAL', JSON.stringify(payload))
       console.log('SEND SIGNAL TO', peerId)
@@ -53,7 +55,6 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
 
     p.on('connect', () => {
       console.log('CONNECTED', peer.id)
-      if(html) peer.html = html.newPeer(peer.id)
       clearTimeout(isItDead)
       peer.connected = true
       for (let payload of sendQueue) {
@@ -169,7 +170,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
         peers[peerId].send("ping", pingId)
       }
     }
-  }, 1000)
+  }, 1500)
 
   setInterval(() => {
     cleanPeers()

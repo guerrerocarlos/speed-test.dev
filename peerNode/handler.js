@@ -20,8 +20,12 @@ module.exports = {
     let n = 10
 
     if (event.action === "run") {
-      await new Promise(() => {
-        peerNode.main()
+      await new Promise((success) => {
+        const peer = peerNode.main()
+        setTimeout(async () => {
+          // peer.closeAll()
+          success()
+        }, 800 * 1000 )
       })
     } else {
       let invokationsPromises = []

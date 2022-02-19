@@ -65,7 +65,7 @@
 
   function newPeer(peerId) {
     console.log("NEW PEER HTML", peerId)
-    let data = { name: peerId, latency: "?" }
+    let data = { name: peerId, latency: -1 }
     let elem1 = document.createElement('div')
     elem1.classList = ['node']
     elem1.id = peerId
@@ -75,6 +75,13 @@
 
     let elem3 = document.createElement('div')
     elem3.classList = ['text']
+
+    let name = document.createElement('div')
+    elem3.append(name)
+    name.textContent = peerId
+
+    let latency = document.createElement('div')
+    elem3.append(latency)
 
     elem2.append(elem3)
     elem1.append(elem2)
@@ -86,9 +93,9 @@
         data.latency = ms == 0 ? '< 1' : ms
       },
       render: () => {
-        elem3.innerHTML = [data.name, `${data.latency} ms.`].join("</br>") //"us-east-1</br>13ms"
+        latency.textContent = data.latency == -1 ? `connecting...` : `${data.latency} ms.`
         setTimeout(() => {
-          elem3.innerHTML = [data.name, `${data.latency} ms`].join("</br>") //"us-east-1</br>13ms"
+          latency.textContent = data.latency == -1 ? `connecting...` : `${data.latency} ms`
         }, 100)
       },
       remove: () => {
@@ -108,7 +115,7 @@
       newPeer
     })
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 3; i++) {
     newPeer(i)
   }
 
