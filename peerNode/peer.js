@@ -113,8 +113,10 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
     },
     pong: (payload, peer) => {
       console.log("TOOK", new Date() - pings[payload], "miliseconds from", peer.id)
-      peer.html.setLatency(new Date() - pings[payload])
-      peer.html.render()
+      if (peer.html) {
+        peer.html.setLatency(new Date() - pings[payload])
+        peer.html.render()
+      }
     },
     default: (payload, peer) => {
       console.log("GOT RAW", peer.id, payload)

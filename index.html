@@ -83,7 +83,7 @@
 
     let tools = {
       setLatency: (ms) => {
-        data.latency = ms
+        data.latency = ms == 0 ? '< 1' : ms
       },
       render: () => {
         elem3.innerHTML = [data.name, `${data.latency} ms.`].join("</br>") //"us-east-1</br>13ms"
