@@ -178,6 +178,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
     p.on('error', err => {
       peer.dead = true
       console.log('📍', peerId, 'error', err)
+      peer.delete()
       cleanPeers()
     })
 
@@ -332,7 +333,10 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
 
     if (payload.disconnectedPeerId) {
       console.log("Server said there was a peer down", payload.disconnectedPeerId)
-      delete peers[payload.disconnectedPeerId]
+      if (peers[payload.disconnectedPeerId]) {
+        peers[payload.disconnectedPeerId].delete()
+        delete peers[payload.disconnectedPeerId]
+      }
     }
 
     if (payload.event === "signal") {

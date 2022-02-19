@@ -182,12 +182,14 @@
       peer.hashId = hash
     })
 
+    let connectButton = document.createElement('a')
+
     if (!peer.localhost) {
-      let connectButton = document.createElement('a')
       connectButton.className = "mainbutton"
       // connectButton.style = "margin-top: 20px; width: 100%;"
       connectButton.textContent = "Connect"
       connectButton.textContent = "Connect"
+      connectButton.style = "display: none;"
       elem3.append(connectButton)
       connectButton.onclick = () => {
         console.log("ENABLE UPLOAD")
@@ -256,6 +258,10 @@
       },
       render: () => {
         tools.updateSpeedStats()
+
+        if(peer.connected) {
+          connectButton.style = ""
+        }
 
         if (peer.uploadToken && !peer.localhost) {
           downloadButton.style = ""
