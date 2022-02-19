@@ -216,6 +216,8 @@
       render: () => {
         tools.updateSpeedStats()
 
+        nick.textContent = peer.nick
+
         download.textContent = peer.downloadSpeed + " " + peer.downloadUnits + " 🔽"
         upload.textContent = peer.uploadSpeed + " " + peer.uploadUnits + " 🔼"
         nick.textContent = peer.nick
@@ -254,15 +256,16 @@
   wakeUpPeers = document.getElementById("wakeUpPeers")
 
   wakeUpPeers.onclick = () => {
-    if(!limitPeers) {
+    if (!limitPeers) {
       fetch("https://atrqipagi3.execute-api.eu-west-3.amazonaws.com/dev/init")
       limitPeers = true
       localStorage.setItem('limitPeers', true);
+    } else {
+      wakeUpPeers.textContent = "😞 rate-limit reached"
+      setTimeout(() => {
+        wakeUpPeers.style = "display: none;"
+      }, 2000)
     }
-    wakeUpPeers.textContent = "😞 rate-limit reached"
-    setTimeout(() => {
-      wakeUpPeers.style = "display: none;"
-    }, 2000)
   }
 
 
