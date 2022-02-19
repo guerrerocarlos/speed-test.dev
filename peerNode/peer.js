@@ -161,6 +161,10 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
       enableUpload: (extraPayload = {}) => {
         console.log("Give upload token to", peer.hashId, { token: myPeer.uploadToken })
         peer.send("enableUpload", Object.assign({ token: myPeer.uploadToken }, extraPayload))
+      },
+      enableUpload: (nick) => {
+        console.log("Give upload token to", peer.hashId, { token: myPeer.uploadToken })
+        peer.send("setNick", { nick })
       }
     }
 
@@ -198,7 +202,8 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
 
       if (opts && opts.nick) {
         console.log("😍 SEND NICK", opts.nick)
-        p.send(JSON.stringify({ event: "setNick", data: opts.nick }))
+        // p.send(JSON.stringify({ event: "setNick", data: opts.nick }))
+        peer.setNick({ nick: opts.nick })
       }
 
       if (opts && opts.autoEnableUpload) {
@@ -236,8 +241,8 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
 
   let onCallbacks = {
     setNick: (payload, peer) => {
-      console.log("😂😂😂 GOT NICK!")
-      peer.nick = payload
+      console.log("😂😂😂 GOT NICK!", payload)
+      peer.nick = payload.nick
     },
     request: (payload, peer) => {
       console.log("GOT REQUEST", payload)
