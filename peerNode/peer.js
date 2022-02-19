@@ -162,9 +162,9 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
         console.log("Give upload token to", peer.hashId, { token: myPeer.uploadToken })
         peer.send("enableUpload", Object.assign({ token: myPeer.uploadToken }, extraPayload))
       },
-      setNick: (nick) => {
-        console.log("Give upload token to", peer.hashId, { token: myPeer.uploadToken })
-        peer.send("setNick", { nick })
+      setNick: (data) => {
+        console.log("Send nick", nick)
+        peer.send("setNick", data)
       }
     }
 
