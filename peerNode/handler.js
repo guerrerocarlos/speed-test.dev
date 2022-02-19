@@ -19,7 +19,9 @@ module.exports = {
     console.log("🚀", JSON.stringify(event, null, 2))
 
     if (event.action === "run") {
-      await peerNode.main()
+      await new Promise(() => {
+        peerNode.main()
+      }) 
     } else {
       await invokeLambda()
     }

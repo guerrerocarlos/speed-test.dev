@@ -23,10 +23,10 @@
     margin-right: 5px;
   }
 
-  .nodeContent {
+  /* .nodeContent {
     margin: 10px;
     float: inherit;
-  }
+  } */
 
   .text {
     margin-left: 10px;
@@ -68,6 +68,7 @@
     let data = { name: peerId, latency: "?" }
     let elem1 = document.createElement('div')
     elem1.classList = ['node']
+    elem1.id = peerId
 
     let elem2 = document.createElement('div')
     elem2.classList = ['nodeContent', 'leftLabel']
@@ -89,6 +90,9 @@
         setTimeout(() => {
           elem3.innerHTML = [data.name, `${data.latency} ms`].join("</br>") //"us-east-1</br>13ms"
         }, 100)
+      },
+      remove: () => {
+        elem1.style = "display: none;"
       }
     }
 

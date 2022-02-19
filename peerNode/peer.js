@@ -16,6 +16,8 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
     for (let peerId in peers) {
       if (!peers[peerId].dead) {
         newPeers[peerId] = peers[peerId]
+      } else {
+        peers[peerId].delete()
       }
     }
     peers = newPeers
@@ -69,6 +71,9 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
     const peer = {
       id: peerId,
       dead: false,
+      delete: () => {
+        if(peer.html) peer.html.remove()
+      },
       send: (event, data) => {
         let payload = { event, data }
         if (!peer.dead) {
