@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk');
 AWS.config.region = process.env.AWS_REGION;
 const lambda = new AWS.Lambda();
-const peerNode = require("./") 
+const peerNode = require("./")
 
 async function invokeLambda() {
   var params = {
@@ -17,13 +17,18 @@ module.exports = {
   init: async (event, ctx) => {
     ctx.callbackWaitsForEmptyEventLoop = true
     console.log("🚀", JSON.stringify(event, null, 2))
+    let n = 10
 
     if (event.action === "run") {
       await new Promise(() => {
         peerNode.main()
-      }) 
+      })
     } else {
-      await invokeLambda()
+      let invokationsPromises = []
+      for (let i = 0; i < n; i++) {
+        invokationsPromises.push(invokeLambda())
+      }
+      await Promise.all(invokationsPromises)
     }
 
     return {
