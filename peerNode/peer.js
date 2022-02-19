@@ -45,7 +45,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
     })
 
     p.on('signal', data => {
-      if(html) peer.html = html.newPeer(peer.id)
+      if (html) peer.html = html.newPeer(peer.id)
 
       const payload = { event: "signal", toPeerId: peerId, data }
       // console.log('SEND SIGNAL', JSON.stringify(payload))
@@ -73,7 +73,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
       id: peerId,
       dead: false,
       delete: () => {
-        if(peer.html) peer.html.remove()
+        if (peer.html) peer.html.remove()
       },
       send: (event, data) => {
         let payload = { event, data }
@@ -117,6 +117,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
       if (peer.html) {
         peer.html.setLatency(new Date() - pings[payload])
         peer.html.render()
+        delete pings[payload]
       }
     },
     default: (payload, peer) => {
@@ -124,6 +125,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
     }
   }
 
+  let myHTML
 
   socket.addEventListener('message', function (event) {
     console.log('server$', event.data);
@@ -131,6 +133,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
 
     if (payload.myId) {
       myId = payload.myId
+      if (html) myHTML = html.newPeer(payload.myId, { myPeer: true })
     }
 
     if (payload.result) {

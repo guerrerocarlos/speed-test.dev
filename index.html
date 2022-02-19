@@ -35,6 +35,10 @@
     margin-bottom: 7px;
   }
 
+  .localhost {
+    color: white;
+  }
+
 </style>
 
 <body>
@@ -62,29 +66,42 @@
 <script>
   const template1 = document.getElementById("boxTemplate1")
 
-
-  function newPeer(peerId) {
+  function newPeer(peerId, opts) {
     console.log("NEW PEER HTML", peerId)
-    let data = { name: peerId, latency: -1 }
+    let data = { name: peerId, latency: -1, upload: 0, download: 0 }
     let elem1 = document.createElement('div')
     elem1.classList = ['node']
     elem1.id = peerId
 
     let elem2 = document.createElement('div')
-    elem2.classList = ['nodeContent', 'leftLabel']
+
 
     let elem3 = document.createElement('div')
     elem3.classList = ['text']
 
     let name = document.createElement('div')
     elem3.append(name)
-    name.textContent = peerId
 
     let latency = document.createElement('div')
     elem3.append(latency)
 
+    let upload = document.createElement('div')
+    elem3.append(upload)
+    upload.style = "text-align: right;"
+
+    let download = document.createElement('div')
+    elem3.append(download)
+    download.style = "text-align: right;"
+
     elem2.append(elem3)
     elem1.append(elem2)
+
+    if (opts && opts.myPeer) {
+      elem2.classList = ['localhost']
+      data.latency = "[localhost]"
+      data.localhost = true
+      latency.textContent = data.latency
+    }
 
     document.getElementById("boxes").appendChild(elem1)
 
@@ -93,10 +110,15 @@
         data.latency = ms == 0 ? '< 1' : ms
       },
       render: () => {
-        latency.textContent = data.latency == -1 ? `connecting...` : `${data.latency} ms.`
-        setTimeout(() => {
-          latency.textContent = data.latency == -1 ? `connecting...` : `${data.latency} ms`
-        }, 100)
+        name.textContent = data.name
+        download.textContent = data.download + " Mbps 🔽"
+        upload.textContent = data.upload + " Mbps 🔼"
+        if (!data.localhost) {
+          latency.textContent = data.latency == -1 ? `connecting...` : `${data.latency} ms.`
+          setTimeout(() => {
+            latency.textContent = data.latency == -1 ? `connecting...` : `${data.latency} ms`
+          }, 100)
+        }
       },
       remove: () => {
         elem1.style = "display: none;"
@@ -115,9 +137,9 @@
       newPeer
     })
 
-  for (let i = 0; i < 3; i++) {
-    newPeer(i)
-  }
+  // for (let i = 0; i < 3; i++) {
+  //   newPeer(i)
+  // }
 
 </script>
 
