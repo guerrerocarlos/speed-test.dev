@@ -39,6 +39,34 @@
     color: white;
   }
 
+  .mainbutton {
+    box-shadow: inset 0px 1px 0px 0px #caefab;
+    background: linear-gradient(to bottom, #77d42a 5%, #5cb811 100%);
+    background-color: #77d42a;
+    border-radius: 6px;
+    border: 1px solid #268a16;
+    display: inline-block;
+    cursor: pointer;
+    color: #306108;
+    font-family: Arial;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 6px 24px;
+    text-decoration: none;
+    text-shadow: 0px 1px 0px #aade7c;
+    text-align: center;
+  }
+
+  .mainbutton:hover {
+    background: linear-gradient(to bottom, #5cb811 5%, #77d42a 100%);
+    background-color: #5cb811;
+  }
+
+  .mainbutton:active {
+    position: relative;
+    top: 1px;
+  }
+
 </style>
 
 <body>
@@ -63,12 +91,17 @@
 </script>
 <script src="simplepeer.min.js"></script>
 <script src="peerNode/peer.js"></script>
+<script src="peerNode/emojiHash.js"></script>
 <script>
   const template1 = document.getElementById("boxTemplate1")
 
-  function newPeer(peerId, opts) {
+  function limitNumber(n) {
+    return Math.floor(n * 100) / 100
+  }
+
+  function newPeer(peer, opts) {
+    let peerId = peer.id
     console.log("NEW PEER HTML", peerId)
-    let data = { name: peerId, latency: -1, upload: 0, download: 0 }
     let elem1 = document.createElement('div')
     elem1.classList = ['node']
     elem1.id = peerId
@@ -81,9 +114,11 @@
 
     let name = document.createElement('div')
     elem3.append(name)
+    name.style = "margin-bottom: 20px; font-size: 1.7em;"
 
     let latency = document.createElement('div')
     elem3.append(latency)
+    latency.textContent = 'connecting...'
 
     let upload = document.createElement('div')
     elem3.append(upload)
@@ -96,35 +131,65 @@
     elem2.append(elem3)
     elem1.append(elem2)
 
-    if (opts && opts.myPeer) {
+    name.textContent = peer.id
+    emojiHash(peerId, 7).then(hash => {
+      name.textContent = hash
+    })
+
+    if (peer.localhost) {
       elem2.classList = ['localhost']
-      data.latency = "[localhost]"
-      data.localhost = true
-      latency.textContent = data.latency
+      latency.textContent = peer.latency
+      let downloadButton = document.createElement('a')
+      downloadButton.id = "downloadButton"
+      downloadButton.textContent = "Start Download"
+      downloadButton.className = "mainbutton"
+      downloadButton.style = "margin-top: 20px;"
+      elem3.append(downloadButton)
     }
+
+    name.textContent = peer.id
 
     document.getElementById("boxes").appendChild(elem1)
 
     let tools = {
-      setLatency: (ms) => {
-        data.latency = ms == 0 ? '< 1' : ms
+      updateSpeedStats: () => {
+        peer.uploadUnits = "Kbps"
+        let received = peer.totalBufferReceivedCount * 8 / 1024
+        if (received > 1024) {
+          received = received / 1024
+          peer.uploadUnits = "Mbps"
+        }
+        peer.uploadSpeed = limitNumber(received / (peer.uiUpdateInterval / 1000))
+        peer.totalBufferReceivedCount = 0
+
+        peer.downloadUnits = "Kbps"
+        let sent = peer.totalBufferSentCount * 8 / 1024
+        if (sent > 1024) {
+          sent = sent / 1024
+          peer.downloadUnits = "Mbps"
+        }
+        peer.downloadSpeed = limitNumber(sent / (peer.uiUpdateInterval / 1000))
+        peer.totalBufferSentCount = 0
       },
       render: () => {
-        name.textContent = data.name
-        download.textContent = data.download + " Mbps 🔽"
-        upload.textContent = data.upload + " Mbps 🔼"
-        if (!data.localhost) {
-          latency.textContent = data.latency == -1 ? `connecting...` : `${data.latency} ms.`
-          setTimeout(() => {
-            latency.textContent = data.latency == -1 ? `connecting...` : `${data.latency} ms`
-          }, 100)
-        }
+        tools.updateSpeedStats()
+
+        download.textContent = peer.downloadSpeed + " " + peer.downloadUnits + " 🔽"
+        upload.textContent = peer.uploadSpeed + " " + peer.uploadUnits + " 🔼"
+        // if (!isNaN(peer.latency)) {
+        // let latency = peer.latency == 0 ? '< 1' : peer.latency
+        latency.textContent = peer.latency + "."
+        setTimeout(() => {
+          latency.textContent = peer.latency
+        }, 100)
+        // }
       },
       remove: () => {
         elem1.style = "display: none;"
       }
     }
 
+    setInterval(tools.render, peer.uiUpdateInterval)
     tools.render()
 
     return tools

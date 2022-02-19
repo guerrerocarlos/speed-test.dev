@@ -11,6 +11,21 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
     // socket.send(JSON.stringify({ event: "init" }));
   });
 
+  function startSpeedTest(peer) {
+    let size = 150
+    let increment = true
+    // wait for 'connect' event before using the data channel
+    setInterval(() => {
+      try {
+        peer.send(new ArrayBuffer(size += (increment ? 10 : 0)))
+      } catch (err) {
+        // console.log(err)
+        size -= 20
+        // increment = false
+      }
+    }, 0)
+  }
+
   function cleanPeers() {
     let newPeers = {}
     for (let peerId in peers) {
@@ -26,6 +41,105 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
   function Peer(socket, peerId, opts, html) {
     const sendQueue = []
     const listeners = []
+
+    const peer = {
+      id: peerId,
+      dead: false,
+      totalBufferReceivedCount: 0,
+      totalBufferSentCount: 0,
+      lastBufferCount: null,
+      downloadSpeed: 0,
+      downloadUnits: "Kbps",
+      uploadSpeed: 0,
+      uploadUnits: "Kbps",
+      latency: "connecting..",
+      // updateUI: (peer) => {
+      //   peer.uploadUnits = "Kbps"
+      //   let received = peer.totalBufferReceivedCount * 8 / 1024
+      //   if (received > 1024) {
+      //     received = received / 1024
+      //     peer.uploadUnits = "Mbps"
+      //   }
+      //   peer.uploadSpeed = limitNumber(received / (peer.uiUpdateInterval / 1000))
+      //   peer.totalBufferReceivedCount = 0
+
+      //   peer.downloadUnits = "Kbps"
+      //   let sent = peer.totalBufferSentCount * 8 / 1024
+      //   if (sent > 1024) {
+      //     sent = sent / 1024
+      //     peer.downloadUnits = "Mbps"
+      //   }
+      //   peer.downloadSpeed = limitNumber(sent / (peer.uiUpdateInterval / 1000))
+      //   peer.totalBufferSentCount = 0
+
+      //   // if (peer.html) peer.html.render(peer)
+      // },
+      startUpload: () => {
+        if (!peer.speedInterval) {
+          // peer.speedInterval = setInterval(peer.sendBuffer, peer.uploadInterval)
+          peer.sendBuffer()
+          peer.sendBuffer()
+          peer.sendBuffer()
+          // peer.speedUIInterval = setInterval(peer.updateUI, peer.uiUpdateInterval)
+        }
+      },
+      stoptUpload: () => {
+        clearInterval(peer.speedInterval)
+        clearInterval(peer.speedUIInterval)
+      },
+      uiUpdateInterval: 500,
+      speedInterval: null,
+      uploadInterval: 300,
+      bufferSize: 2000,
+      increment: 2000,
+      sendBuffer: () => {
+        try {
+          if (peer.bufferSize + peer.increment < 250000) {
+            peer.bufferSize += peer.increment
+          }
+          let buffer = new ArrayBuffer(peer.bufferSize)
+          // console.log("🌲 SEND to", peer.id, buffer)
+          p.send(buffer)
+          peer.totalBufferSentCount += peer.bufferSize
+          myPeer.totalBufferSentCount += peer.bufferSize
+        } catch (err) {
+          console.log("sendBuffer err", err)
+          peer.bufferSize -= peer.increment
+        }
+      },
+      delete: () => {
+        if (peer.html) peer.html.remove()
+      },
+      send: (event, data) => {
+        let payload = { event, data }
+        if (!peer.dead) {
+          try {
+            if (peer.connected) {
+              // console.log(">> TO", peer.id, payload)
+              p.send(JSON.stringify(payload))
+            } else {
+              // console.log("Queing message for", peerId, " => ", payload)
+              // if (sendQueue.length > 100) {
+              //   peer.dead = true
+              //   cleanPeers()
+              // }
+              sendQueue.push(JSON.stringify(payload))
+            }
+          } catch (err) {
+            peer.dead = true
+            console.log(err)
+            cleanPeers()
+          }
+        }
+      },
+      signal: (signal) => {
+        // console.log("GOT SIGNAL FROM", peer.id)
+        console.log("GOT SIGNAL", peer.id, signal)
+        p.signal(signal)
+      }
+    }
+
+
 
     const p = new SimplePeer({
       initiator: (opts && opts.receiver) ? false : true,
@@ -45,7 +159,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
     })
 
     p.on('signal', data => {
-      if (html) peer.html = html.newPeer(peer.id)
+      if (html) peer.html = html.newPeer(peer)
 
       const payload = { event: "signal", toPeerId: peerId, data }
       // console.log('SEND SIGNAL', JSON.stringify(payload))
@@ -53,87 +167,84 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
       socket.send(JSON.stringify(payload));
     })
 
-    p.on('connect', () => {
-      console.log('CONNECTED', peer.id)
+    p.on('connect', (conn) => {
+      console.log('CONNECTED', peer.id, conn)
       clearTimeout(isItDead)
       peer.connected = true
       for (let payload of sendQueue) {
         console.log("📄 to", peer.peerId, payload)
         p.send(payload)
       }
+      peer.startUpload()
     })
 
     p.on('data', async data => {
-      // console.log(`<< ${peerId} `, data.toString())
-      let payload = JSON.parse(data.toString())
-      onCallbacks[payload.event || "default"](payload.data, peer)
+      try {
+        let payload = JSON.parse(data.toString())
+        // console.log(`<< ${peerId} `, data.toString())
+        if (onCallbacks[payload.event || "default"]) {
+          onCallbacks[payload.event || "default"](payload.data, peer)
+        } else {
+          console.log("Unknown", payload.event, "event received")
+        }
+      } catch (err) {
+        // console.log("not json, must be speed buffer")
+        onCallbacks["buffer"](data, peer)
+      }
     })
 
-    const peer = {
-      id: peerId,
-      dead: false,
-      delete: () => {
-        if (peer.html) peer.html.remove()
-      },
-      send: (event, data) => {
-        let payload = { event, data }
-        if (!peer.dead) {
-          try {
-            if (peer.connected) {
-              // console.log(">> TO", peer.id, payload)
-              p.send(JSON.stringify(payload))
-            } else {
-              // console.log("Queing message for", peerId, " => ", payload)
-              if (sendQueue.length > 100) {
-                peer.dead = true
-                cleanPeers()
-              }
-              sendQueue.push(JSON.stringify(payload))
-            }
-          } catch (err) {
-            peer.dead = true
-            console.log(err)
-            cleanPeers()
-          }
-        }
-      },
-      signal: (signal) => {
-        // console.log("GOT SIGNAL FROM", peer.id)
-        console.log("GOT SIGNAL", peer.id, signal)
-        p.signal(signal)
-      }
-    }
+
 
     return peer
   }
 
   let onCallbacks = {
+    bufferReceived: (payload, peer) => {
+      peer.sendBuffer()
+    },
+    buffer: (payload, peer) => {
+      // console.log("🚚 got buffer", payload)
+      peer.totalBufferReceivedCount += payload.length
+      myPeer.totalBufferReceivedCount += payload.length
+      peer.send('bufferReceived', { bufferReceivedLength: payload.length })
+    },
     ping: (payload, peer) => {
       payload.pong = true
       peer.send("pong", payload)
     },
     pong: (payload, peer) => {
-      console.log("TOOK", new Date() - pings[payload], "miliseconds from", peer.id)
-      if (peer.html) {
-        peer.html.setLatency(new Date() - pings[payload])
-        peer.html.render()
-        delete pings[payload]
-      }
+      // console.log("TOOK", new Date() - pings[payload], "miliseconds from", peer.id)
+      // if (peer.html) {
+      peer.latency = (new Date() - pings[payload]) + " ms"
+      // peer.html.render(peer)
+      delete pings[payload]
+      // }
     },
     default: (payload, peer) => {
       console.log("GOT RAW", peer.id, payload)
     }
   }
 
-  let myHTML
+  // let myPeerUI
+  let myPeer = {
+    id: null,
+    downloadSpeed: 0,
+    downloadUnits: "Kbps",
+    uploadSpeed: 0,
+    uploadUnits: "Kbps",
+    totalBufferReceivedCount: 0,
+    totalBufferSentCount: 0,
+    uiUpdateInterval: 500,
+    localhost: true,
+    latency: "[localhost]"
+  }
 
   socket.addEventListener('message', function (event) {
-    console.log('server$', event.data);
     let payload = JSON.parse(event.data)
 
     if (payload.myId) {
-      myId = payload.myId
-      if (html) myHTML = html.newPeer(payload.myId, { myPeer: true })
+      myPeer.id = payload.myId
+      if (html) html.newPeer(myPeer, { autoRender: myPeer.uiUpdateInterval })
     }
 
     if (payload.result) {
