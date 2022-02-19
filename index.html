@@ -21,6 +21,19 @@
     display: inline-block;
     margin-top: 5px;
     margin-right: 5px;
+    vertical-align: top;
+  }
+
+  .whiteNode {
+    /* width: 320px; */
+    width: auto;
+    /* height: 200px; */
+    border: white;
+    border-style: solid;
+    border-radius: 5px 5px 5px 5px;
+    display: inline-block;
+    margin-top: 5px;
+    margin-right: 5px;
   }
 
   /* .nodeContent {
@@ -52,6 +65,8 @@
     text-align: center;
     padding-top: 7px;
     padding-bottom: 7px;
+    margin-top: 10px;
+    width: 100%;
     /* box-shadow: inset 0px 1px 0px 0px #caefab;
     background: linear-gradient(to bottom, #77d42a 5%, #5cb811 100%);
     background-color: #77d42a;
@@ -65,6 +80,19 @@
     text-decoration: none;
     text-shadow: 0px 1px 0px #aade7c;
     text-align: center; */
+  }
+
+  .mainbuttonDisabled {
+    cursor: pointer;
+    border: 0px;
+    border-radius: 6px;
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    margin-top: 10px;
+    width: 100%;
   }
 
   /* .mainbutton:hover {
@@ -83,7 +111,7 @@
   <div id="main">
     <h1 id="title">P2P (WebRTC) Speed Test</h1>
   </div>
-  <div id="boxes" style="display: inline;">
+  <div id="boxes" style="display: inline; ">
   </div>
   <div id="add" style="display: inline-block;">
     <a id="wakeUpPeers" class="mainbutton text pointer">➕ Wake up Peers</a>
@@ -127,7 +155,7 @@
 
     let name = document.createElement('div')
     elem3.append(name)
-    name.style = "margin-bottom: 0px; font-size: 1.7em;"
+    name.style = "margin-bottom: 0px; font-size: 2em;"
 
     let nick = document.createElement('div')
     elem3.append(nick)
@@ -149,17 +177,35 @@
     elem1.append(elem2)
 
     name.textContent = peer.id
-    emojiHash(peerId, 7).then(hash => {
+    emojiHash(peerId, 5).then(hash => {
       name.textContent = hash
       peer.hashId = hash
     })
 
+    if (!peer.localhost) {
+      let connectButton = document.createElement('a')
+      connectButton.className = "mainbutton"
+      // connectButton.style = "margin-top: 20px; width: 100%;"
+      connectButton.textContent = "Connect"
+      connectButton.textContent = "Connect"
+      elem3.append(connectButton)
+      connectButton.onclick = () => {
+        console.log("ENABLE UPLOAD")
+        connectButton.textContent = "Connected"
+        connectButton.className = "mainbuttonDisabled"
+        peer.enableUpload()
+      }
+    } else {
+      elem1.className = "whiteNode"
+    }
+
     let downloadButton = document.createElement('a')
     downloadButton.id = "downloadButton"
     downloadButton.className = "mainbutton"
-    downloadButton.style = "margin-top: 20px; width: 100%;"
+    downloadButton.style = "display: none;"
     downloadButton.textContent = "Download"
     elem3.append(downloadButton)
+
     downloadButton.onclick = () => {
       if (peer.downloadStatus) {
         peer.stopDownloadFromPeer()
@@ -168,24 +214,19 @@
       }
     }
 
-    if (peer.localhost) {
-      downloadButton.textContent = "Download ALL"
-    }
-
     name.textContent = peer.id
 
     document.getElementById("boxes").appendChild(elem1)
 
     let tools = {
       updateDownloadButton: () => {
-        console.log("<<< updateDownloadButton >>>", peer.downloadStatus, downloadButton)
-        if (peer.downloadStatus) {
-          downloadButton.textContent = "Stop"
-        } else {
-          downloadButton.textContent = "Download"
-        }
-        if (peer.localhost) {
-          downloadButton.textContent = downloadButton.textContent + " ALL"
+        if (downloadButton) {
+          // console.log("<<< updateDownloadButton >>>", peer.downloadStatus, downloadButton)
+          if (peer.downloadStatus) {
+            downloadButton.textContent = "Stop"
+          } else {
+            downloadButton.textContent = "Download"
+          }
         }
       },
       updateSpeedStats: () => {
@@ -215,6 +256,10 @@
       },
       render: () => {
         tools.updateSpeedStats()
+
+        if (peer.uploadToken && !peer.localhost) {
+          downloadButton.style = ""
+        }
 
         nick.textContent = peer.nick
 
@@ -256,16 +301,18 @@
   wakeUpPeers = document.getElementById("wakeUpPeers")
 
   wakeUpPeers.onclick = () => {
-    if (!limitPeers) {
-      fetch("https://atrqipagi3.execute-api.eu-west-3.amazonaws.com/dev/init")
-      limitPeers = true
-      localStorage.setItem('limitPeers', true);
-    } else {
-      wakeUpPeers.textContent = "😞 rate-limit reached"
-      setTimeout(() => {
-        wakeUpPeers.style = "display: none;"
-      }, 2000)
-    }
+    // if (!limitPeers) {
+    fetch("https://atrqipagi3.execute-api.eu-west-3.amazonaws.com/dev/init")
+    limitPeers = true
+    localStorage.setItem('limitPeers', true);
+    // } else {
+    wakeUpPeers.textContent = "Request sent!"
+
+    // wakeUpPeers.textContent = "😞 rate-limit reached"
+    setTimeout(() => {
+      wakeUpPeers.style = "display: none;"
+    }, 2000)
+    // }
   }
 
 

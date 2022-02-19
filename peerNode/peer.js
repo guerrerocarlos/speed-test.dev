@@ -52,7 +52,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
       downloadUnits: "Kbps",
       uploadSpeed: 0,
       uploadUnits: "Kbps",
-      latency: "connecting..",
+      latency: "Initializing..",
       // updateUI: (peer) => {
       //   peer.uploadUnits = "Kbps"
       //   let received = peer.totalBufferReceivedCount * 8 / 1024
@@ -74,15 +74,16 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
 
       //   // if (peer.html) peer.html.render(peer)
       // },
-      startUpload: () => {
-        // if (!peer.speedInterval) {
-        // peer.speedInterval = setInterval(peer.sendBuffer, peer.uploadInterval)
-        peer.sendBuffer()
-        peer.sendBuffer()
-        peer.sendBuffer()
+      startUpload: (token) => {
+        if (myPeer.uploadToken == token) {
+          // peer.speedInterval = setInterval(peer.sendBuffer, peer.uploadInterval)
+          peer.sendBuffer()
+          peer.sendBuffer()
+          peer.sendBuffer()
 
-        console.log("💚 SENT BUFFERS!")
-        peer.sendingBuffers = true
+          console.log("💚 SENT BUFFERS!")
+          peer.sendingBuffers = true
+        }
         // peer.speedUIInterval = setInterval(peer.updateUI, peer.uiUpdateInterval)
         // }
       },
@@ -147,7 +148,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
         console.log("start download!")
         peer.downloadStatus = true
         console.log("request download from", peer.hashId)
-        peer.send("request", { execute: "startUpload" })
+        peer.send("request", { execute: "startUpload", param: peer.uploadToken })
         peer.html.updateDownloadButton()
       },
       stopDownloadFromPeer: () => {
@@ -156,6 +157,10 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
         console.log("request stop download from", peer.hashId)
         peer.send("request", { execute: "stopUpload" })
         peer.html.updateDownloadButton()
+      },
+      enableUpload: () => {
+        console.log("Give upload token to", peer.hashId, { token: myPeer.uploadToken })
+        peer.send("enableUpload", { token: myPeer.uploadToken })
       }
     }
 
@@ -233,8 +238,12 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
       console.log("GOT REQUEST", payload)
       if (payload.execute) {
         console.log(`EXECUTING peer.${payload.execute}()`, peer[payload.execute])
-        peer[payload.execute]()
+        peer[payload.execute](payload.param)
       }
+    },
+    enableUpload: (payload, peer) => {
+      console.log("GOT uploadToken for peer", payload)
+      peer.uploadToken = payload.token
     },
     bufferReceived: (payload, peer) => {
       if (peer.sendingBuffers) {
@@ -271,6 +280,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
   // let myPeerUI
   let myPeer = {
     id: null,
+    uploadToken: Math.random(),
     nick: opts.myNick,
     downloadSpeed: 0,
     downloadUnits: "Kbps",
@@ -281,7 +291,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
     uiUpdateInterval: 500,
     localhost: true,
     downloadStatus: false,
-    latency: "[localhost]",
+    latency: "-",
     startDownloadFromPeer: () => {
       console.log("start download!")
       myPeer.downloadStatus = true
