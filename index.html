@@ -155,7 +155,7 @@
 
     let name = document.createElement('div')
     elem3.append(name)
-    name.style = "margin-bottom: 0px; font-size: 2em;"
+    name.style = "margin-bottom: 0px; font-size: 2.3em;"
 
     let nick = document.createElement('div')
     elem3.append(nick)
@@ -259,7 +259,7 @@
       render: () => {
         tools.updateSpeedStats()
 
-        if(peer.connected) {
+        if(peer.connected && !peer.isServer) {
           connectButton.style = ""
         }
 

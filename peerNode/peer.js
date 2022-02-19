@@ -158,9 +158,9 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
         peer.send("request", { execute: "stopUpload" })
         peer.html.updateDownloadButton()
       },
-      enableUpload: () => {
+      enableUpload: (extraPayload = {}) => {
         console.log("Give upload token to", peer.hashId, { token: myPeer.uploadToken })
-        peer.send("enableUpload", { token: myPeer.uploadToken })
+        peer.send("enableUpload", Object.assign({ token: myPeer.uploadToken }, extraPayload))
       }
     }
 
@@ -199,6 +199,10 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
       if (opts && opts.nick) {
         console.log("😍 SEND NICK", opts.nick)
         p.send(JSON.stringify({ event: "setNick", data: opts.nick }))
+      }
+
+      if (opts && opts.autoEnableUpload) {
+        peer.enableUpload({ isServer: true })
       }
 
       for (let payload of sendQueue) {
@@ -245,6 +249,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
     enableUpload: (payload, peer) => {
       console.log("GOT uploadToken for peer", payload)
       peer.uploadToken = payload.token
+      peer.isServer = payload.isServer
     },
     bufferReceived: (payload, peer) => {
       if (peer.sendingBuffers) {

@@ -10,7 +10,8 @@ module.exports = {
     peerNode(SimplePeer,
       WebSocket,
       wrtc, null, {
-        nick: `AWS Lambda ${process.env.AWS_REGION || "local"}`
+        nick: `AWS Lambda ${process.env.AWS_REGION || "local"}`,
+        autoEnableUpload: true
       })
   }
 }
