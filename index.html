@@ -28,6 +28,10 @@
     float: inherit;
   } */
 
+  .pointer {
+    cursor: pointer;
+  }
+
   .text {
     margin-left: 10px;
     margin-right: 10px;
@@ -40,6 +44,7 @@
   }
 
   .mainbutton {
+    cursor: pointer;
     border: 1px solid #268a16;
     border-radius: 6px;
     display: block;
@@ -76,9 +81,12 @@
 
 <body>
   <div id="main">
-    <h1 id="title">Connecting...</h1>
+    <h1 id="title">P2P (WebRTC) Speed Test</h1>
   </div>
-  <div id="boxes">
+  <div id="boxes" style="display: inline;">
+  </div>
+  <div id="add" style="display: inline-block;">
+    <a id="wakeUpPeers" class="mainbutton text pointer">➕ Wake up Peers</a>
   </div>
 
   <div id="boxTemplate1" style="display: none;">
@@ -119,7 +127,11 @@
 
     let name = document.createElement('div')
     elem3.append(name)
-    name.style = "margin-bottom: 20px; font-size: 1.7em;"
+    name.style = "margin-bottom: 0px; font-size: 1.7em;"
+
+    let nick = document.createElement('div')
+    elem3.append(nick)
+    nick.textContent = peer.nick
 
     let latency = document.createElement('div')
     elem3.append(latency)
@@ -142,24 +154,22 @@
       peer.hashId = hash
     })
 
-    if (peer.localhost) {
-      elem2.classList = ['localhost']
-      latency.textContent = peer.latency
-      let downloadButton = document.createElement('a')
-      downloadButton.id = "downloadButton"
-      downloadButton.textContent = "Start Download"
-      downloadButton.className = "mainbutton"
-      downloadButton.style = "margin-top: 20px; width: 100%;"
-      elem3.append(downloadButton)
-      downloadButton.onclick = () => {
-        if (peer.downloadStatus) {
-          peer.stopDownloadFromPeers()
-          downloadButton.textContent = "Start Download"
-        } else {
-          peer.startDownloadFromPeers()
-          downloadButton.textContent = "Stop"
-        }
+    let downloadButton = document.createElement('a')
+    downloadButton.id = "downloadButton"
+    downloadButton.className = "mainbutton"
+    downloadButton.style = "margin-top: 20px; width: 100%;"
+    downloadButton.textContent = "Download"
+    elem3.append(downloadButton)
+    downloadButton.onclick = () => {
+      if (peer.downloadStatus) {
+        peer.stopDownloadFromPeer()
+      } else {
+        peer.startDownloadFromPeer()
       }
+    }
+
+    if (peer.localhost) {
+      downloadButton.textContent = "Download ALL"
     }
 
     name.textContent = peer.id
@@ -167,6 +177,17 @@
     document.getElementById("boxes").appendChild(elem1)
 
     let tools = {
+      updateDownloadButton: () => {
+        console.log("<<< updateDownloadButton >>>", peer.downloadStatus, downloadButton)
+        if (peer.downloadStatus) {
+          downloadButton.textContent = "Stop"
+        } else {
+          downloadButton.textContent = "Download"
+        }
+        if (peer.localhost) {
+          downloadButton.textContent = downloadButton.textContent + " ALL"
+        }
+      },
       updateSpeedStats: () => {
         peer.uploadUnits = "Kbps"
         let received = (peer.localhost ? peer.totalBufferSentCount : peer.totalBufferReceivedCount) * 8 / 1024
@@ -197,6 +218,7 @@
 
         download.textContent = peer.downloadSpeed + " " + peer.downloadUnits + " 🔽"
         upload.textContent = peer.uploadSpeed + " " + peer.uploadUnits + " 🔼"
+        nick.textContent = peer.nick
         // if (!isNaN(peer.latency)) {
         // let latency = peer.latency == 0 ? '< 1' : peer.latency
         latency.textContent = peer.latency + "."
@@ -216,12 +238,33 @@
     return tools
   }
 
-  peerNode(SimplePeer,
+  peerNode(
+    SimplePeer,
     WebSocket,
     wrtc,
     {
-      newPeer
+      newPeer,
+    },
+    {
+      myNick: "(This browser)"
     })
+
+  let limitPeers = localStorage.getItem('limitPeers');
+
+  wakeUpPeers = document.getElementById("wakeUpPeers")
+
+  wakeUpPeers.onclick = () => {
+    if(!limitPeers) {
+      fetch("https://atrqipagi3.execute-api.eu-west-3.amazonaws.com/dev/init")
+      limitPeers = true
+      localStorage.setItem('limitPeers', true);
+    }
+    wakeUpPeers.textContent = "😞 rate-limit reached"
+    setTimeout(() => {
+      wakeUpPeers.style = "display: none;"
+    }, 2000)
+  }
+
 
   // for (let i = 0; i < 3; i++) {
   //   newPeer(i)

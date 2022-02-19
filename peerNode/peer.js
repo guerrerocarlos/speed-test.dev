@@ -1,5 +1,5 @@
 
-function peerNode(SimplePeer, WebSocket, wrtc, html) {
+function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
   const socket = new WebSocket('wss://ua7u2vwiqh.execute-api.eu-west-3.amazonaws.com/dev', [])
 
   let peers = {}
@@ -87,6 +87,8 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
         // }
       },
       stopUpload: () => {
+        console.log("🟥 STOP BUFFERS FROM:", peer.hashId)
+
         peer.sendingBuffers = false
         // clearInterval(peer.speedInterval)
         // clearInterval(peer.speedUIInterval)
@@ -140,10 +142,22 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
         // console.log("GOT SIGNAL FROM", peer.id)
         console.log("GOT SIGNAL", peer.id, signal)
         p.signal(signal)
+      },
+      startDownloadFromPeer: () => {
+        console.log("start download!")
+        peer.downloadStatus = true
+        console.log("request download from", peer.hashId)
+        peer.send("request", { execute: "startUpload" })
+        peer.html.updateDownloadButton()
+      },
+      stopDownloadFromPeer: () => {
+        console.log("stop download!")
+        peer.downloadStatus = false
+        console.log("request stop download from", peer.hashId)
+        peer.send("request", { execute: "stopUpload" })
+        peer.html.updateDownloadButton()
       }
     }
-
-
 
     const p = new SimplePeer({
       initiator: (opts && opts.receiver) ? false : true,
@@ -175,6 +189,12 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
       console.log('CONNECTED', peer.id, conn)
       clearTimeout(isItDead)
       peer.connected = true
+
+      if (opts && opts.nick) {
+        console.log("😍 SEND NICK", opts.nick)
+        p.send(JSON.stringify({ event: "setNick", data: opts.nick }))
+      }
+
       for (let payload of sendQueue) {
         console.log("📄 to", peer.peerId, payload)
         p.send(payload)
@@ -205,25 +225,31 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
   }
 
   let onCallbacks = {
+    setNick: (payload, peer) => {
+      console.log("😂😂😂 GOT NICK!")
+      peer.nick = payload
+    },
     request: (payload, peer) => {
       console.log("GOT REQUEST", payload)
       if (payload.execute) {
-        console.log(`EXECUTING peer.${payload.execute}()`)
+        console.log(`EXECUTING peer.${payload.execute}()`, peer[payload.execute])
         peer[payload.execute]()
       }
     },
     bufferReceived: (payload, peer) => {
-      peer.sendBuffer()
+      if (peer.sendingBuffers) {
+        peer.sendBuffer()
+      }
     },
     buffer: (payload, peer) => {
       // console.log("🚚 got buffer", payload)
       console.log("🧡 GOT BUFFERS!")
 
-      if (peer.sendingBuffers) {
-        peer.totalBufferReceivedCount += payload.length
-        myPeer.totalBufferReceivedCount += payload.length
-        peer.send('bufferReceived', { bufferReceivedLength: payload.length })
-      }
+      // if (peer.receivingBuffers) {
+      peer.totalBufferReceivedCount += payload.length
+      myPeer.totalBufferReceivedCount += payload.length
+      peer.send('bufferReceived', { bufferReceivedLength: payload.length })
+      // }
     },
     ping: (payload, peer) => {
       payload.pong = true
@@ -245,6 +271,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
   // let myPeerUI
   let myPeer = {
     id: null,
+    nick: opts.myNick,
     downloadSpeed: 0,
     downloadUnits: "Kbps",
     uploadSpeed: 0,
@@ -255,21 +282,27 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
     localhost: true,
     downloadStatus: false,
     latency: "[localhost]",
-    startDownloadFromPeers: () => {
+    startDownloadFromPeer: () => {
       console.log("start download!")
       myPeer.downloadStatus = true
       for (let peerId in peers) {
-        console.log("request download from", peers[peerId].hashId)
-        peers[peerId].send("request", { execute: "startUpload" })
+        peers[peerId].startDownloadFromPeer()
+        // peers[peerId].downloadStatus = true
+        // peers[peerId].html.updateDownloadButton()
       }
+      myPeer.html.updateDownloadButton()
     },
-    stopDownloadFromPeers: () => {
+    stopDownloadFromPeer: () => {
       console.log("stop download!")
       myPeer.downloadStatus = false
       for (let peerId in peers) {
         console.log("request stop download from", peers[peerId].hashId)
-        peers[peerId].send("request", { execute: "stopUpload" })
+        // peers[peerId].downloadStatus = false
+
+        peers[peerId].stopDownloadFromPeer()
+        // peers[peerId].html.updateDownloadButton()
       }
+      myPeer.html.updateDownloadButton()
     }
   }
 
@@ -280,7 +313,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
 
     if (payload.myId) {
       myPeer.id = payload.myId
-      if (html) html.newPeer(myPeer, { autoRender: myPeer.uiUpdateInterval })
+      if (html) myPeer.html = html.newPeer(myPeer, { autoRender: myPeer.uiUpdateInterval })
     }
 
     if (payload.result) {
@@ -305,7 +338,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html) {
 
     if (payload.peerIds) {
       for (let peerId of payload.peerIds) {
-        peers[peerId] = new Peer(socket, peerId, {}, html)
+        peers[peerId] = new Peer(socket, peerId, opts, html)
       }
     }
 
