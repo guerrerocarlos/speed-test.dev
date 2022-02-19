@@ -163,7 +163,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
         peer.send("enableUpload", Object.assign({ token: myPeer.uploadToken }, extraPayload))
       },
       setNick: (data) => {
-        console.log("Send nick", nick)
+        console.log("Send nick", data)
         peer.send("setNick", data)
       }
     }
