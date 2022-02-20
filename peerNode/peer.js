@@ -159,7 +159,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
         peer.html.updateDownloadButton()
       },
       enableUpload: (extraPayload = {}) => {
-        console.log("Give upload token to", peer.hashId, { token: myPeer.uploadToken })
+        console.log("Give upload token to", { token: myPeer.uploadToken })
         peer.send("enableUpload", Object.assign({ token: myPeer.uploadToken }, extraPayload))
       },
       setNick: (data) => {
@@ -195,8 +195,8 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
       socket.send(JSON.stringify(payload));
     })
 
-    p.on('connect', (conn) => {
-      console.log('CONNECTED', peer.id, conn)
+    p.on('connect', () => {
+      console.log('CONNECTED', peer.id)
       clearTimeout(isItDead)
       peer.connected = true
 
@@ -354,7 +354,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
       // console.log("💊 GOT SIGNAL", "from", payload.fromPeerId, "data:", peers[payload.fromPeerId])
 
       if (!peers[payload.fromPeerId]) {
-        peers[payload.fromPeerId] = new Peer(socket, payload.fromPeerId, { receiver: true }, html)
+        peers[payload.fromPeerId] = new Peer(socket, payload.fromPeerId, Object.assign(opts, { receiver: true }), html)
       }
 
       peers[payload.fromPeerId].signal(payload.data)
@@ -387,7 +387,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
         connectedPeersCount++
       }
     }
-    console.log(`[${myPeer.hashId}]::: Connected to`, Object.keys(peers).length, Object.keys(peers), `connected: ${connectedPeersCount}`)
+    console.log(`[${myPeer.id}]::: Connected to`, Object.keys(peers).length, Object.keys(peers), `connected: ${connectedPeersCount}`)
   }, 5000)
 }
 
