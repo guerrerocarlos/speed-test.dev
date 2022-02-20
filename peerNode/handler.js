@@ -49,6 +49,7 @@ module.exports = {
   whois: async (event) => {
     console.log(JSON.stringify(event, null, 2))
     let response = await new Promise((success) => {
+      console.log("lookup for:", event.queryStringParameters.ip)
       console.log(whois.lookup(event.queryStringParameters.ip), function (err, response) {
         console.log(err, response)
         success(response)
