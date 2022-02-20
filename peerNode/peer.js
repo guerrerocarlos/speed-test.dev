@@ -1,6 +1,7 @@
 
 function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
   const socket = new WebSocket('wss://ua7u2vwiqh.execute-api.eu-west-3.amazonaws.com/dev', [])
+  let generalUIUpdateInterval = 2000
 
   let peers = {}
   let myId
@@ -94,7 +95,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
         // clearInterval(peer.speedInterval)
         // clearInterval(peer.speedUIInterval)
       },
-      uiUpdateInterval: 500,
+      uiUpdateInterval: generalUIUpdateInterval,
       speedInterval: null,
       uploadInterval: 300,
       bufferSize: 2000,
@@ -299,7 +300,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
     uploadUnits: "Kbps",
     totalBufferReceivedCount: 0,
     totalBufferSentCount: 0,
-    uiUpdateInterval: 500,
+    uiUpdateInterval: generalUIUpdateInterval,
     localhost: true,
     downloadStatus: false,
     latency: "-",

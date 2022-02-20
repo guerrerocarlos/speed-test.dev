@@ -261,6 +261,8 @@
 
         if(peer.connected && !peer.isServer) {
           connectButton.style = ""
+        } else {
+          connectButton.style = "display: none;"
         }
 
         if (peer.uploadToken && !peer.localhost) {
