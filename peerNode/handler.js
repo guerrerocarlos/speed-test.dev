@@ -17,7 +17,7 @@ module.exports = {
   init: async (event, ctx) => {
     ctx.callbackWaitsForEmptyEventLoop = true
     console.log("🚀", JSON.stringify(event, null, 2))
-    let n = 10
+    let n = 2
 
     if (event.action === "run") {
       await new Promise((success) => {
@@ -27,12 +27,23 @@ module.exports = {
           success()
         }, 800 * 1000 )
       })
+      await new Promise((success) => {
+        const peer = peerNode.main()
+        setTimeout(async () => {
+          // peer.closeAll()
+          success()
+        }, 800 * 1000 )
+      })
     } else {
-      let invokationsPromises = []
-      for (let i = 0; i < n; i++) {
-        invokationsPromises.push(invokeLambda())
+      try {
+        let invokationsPromises = []
+        for (let i = 0; i < n; i++) {
+          invokationsPromises.push(invokeLambda())
+        }
+        await Promise.all(invokationsPromises)
+      } catch (err) {
+        console.log(err)
       }
-      await Promise.all(invokationsPromises)
     }
 
     return {
