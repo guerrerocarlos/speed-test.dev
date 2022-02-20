@@ -21,14 +21,8 @@ module.exports = {
 
     if (event.action === "run") {
       await new Promise((success) => {
-        const peer = peerNode.main()
-        setTimeout(async () => {
-          // peer.closeAll()
-          success()
-        }, 800 * 1000 )
-      })
-      await new Promise((success) => {
-        const peer = peerNode.main()
+        const peer1 = peerNode.main()
+        const peer2 = peerNode.main()
         setTimeout(async () => {
           // peer.closeAll()
           success()
