@@ -56,6 +56,10 @@ module.exports = {
       })
     })
     return {
+      headers: {
+        "Access-Control-Allow-Origin" : "*", // Required for CORS support to work
+        "Access-Control-Allow-Credentials" : true // Required for cookies, authorization headers with HTTPS
+      },
       statusCode: 200,
       body: response
     }

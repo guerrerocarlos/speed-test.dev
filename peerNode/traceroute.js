@@ -28,3 +28,10 @@ ws.addEventListener('message', function (event) {
 
 const traceroutes = document.getElementById("traceroutes")
 traceroutes.appendChild(lines)
+
+
+fetch("https://atrqipagi3.execute-api.eu-west-3.amazonaws.com/dev/whois?ip=80.58.81.45")
+  .then(result => result.text())
+  .then(result => {
+    console.log(result)
+  })
