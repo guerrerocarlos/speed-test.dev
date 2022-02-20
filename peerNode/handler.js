@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk');
+const whois = require('whois');
 AWS.config.region = process.env.AWS_REGION;
 const lambda = new AWS.Lambda();
 const peerNode = require("./")
@@ -43,6 +44,19 @@ module.exports = {
     return {
       statusCode: 200,
       body: "INITED"
+    }
+  },
+  whois: async (event) => {
+    console.log(JSON.stringify(event, null, 2))
+    let response = await new Promise((success) => {
+      console.log(whois.lookup(""), function (err, response) {
+        console.log(err, response)
+        success(response)
+      })
+    })
+    return {
+      statusCode: 200,
+      body: response
     }
   }
 }
