@@ -17,10 +17,10 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
     console.log("INIT!")
     socket.send(JSON.stringify({ event: "init" }));
 
-    tryAgainTimeout = setTimeout(() => {
-      console.log("trying again!")
-      socket.send(JSON.stringify({ event: "init" }));
-    }, 10000)
+    // tryAgainTimeout = setTimeout(() => {
+    //   console.log("trying again!")
+    //   socket.send(JSON.stringify({ event: "init" }));
+    // }, 10000)
     // socket.send(JSON.stringify({ event: "init" }));
   });
 
@@ -342,7 +342,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
   let inited 
 
   socket.addEventListener('message', function (event) {
-    clearTimeout(tryAgainTimeout)
+    // clearTimeout(tryAgainTimeout)
     let payload = JSON.parse(event.data)
 
     console.log("😎 MASTER>", JSON.stringify(payload, null, 2))
