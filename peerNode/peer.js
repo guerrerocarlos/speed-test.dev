@@ -3,12 +3,24 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
   const socket = new WebSocket('wss://ua7u2vwiqh.execute-api.eu-west-3.amazonaws.com/dev', [])
   let generalUIUpdateInterval = 2000
 
+  // let tryAgainTimeout = setTimeout(() => {
+  //   console.log("trying again!")
+  //   peerNode(SimplePeer, WebSocket, wrtc, html, opts)
+  // }, 20000)
+
+  let tryAgainTimeout
+
   let peers = {}
   let myId
   // Connection opened
   socket.addEventListener('open', function (event) {
     console.log("INIT!")
     socket.send(JSON.stringify({ event: "init" }));
+
+    tryAgainTimeout = setTimeout(() => {
+      console.log("trying again!")
+      socket.send(JSON.stringify({ event: "init" }));
+    }, 10000)
     // socket.send(JSON.stringify({ event: "init" }));
   });
 
@@ -327,8 +339,10 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
       myPeer.html.updateDownloadButton()
     }
   }
+  let inited 
 
   socket.addEventListener('message', function (event) {
+    clearTimeout(tryAgainTimeout)
     let payload = JSON.parse(event.data)
 
     console.log("😎 MASTER>", JSON.stringify(payload, null, 2))
@@ -361,7 +375,8 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
       peers[payload.fromPeerId].signal(payload.data)
     }
 
-    if (payload.peerIds) {
+    if (payload.peerIds && !inited) {
+      inited = true
       for (let peerId of payload.peerIds) {
         peers[peerId] = new Peer(socket, peerId, opts, html)
       }
