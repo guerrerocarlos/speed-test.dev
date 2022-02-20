@@ -1,47 +1,16 @@
 
 function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
 
-
-
-
   const socket = new WebSocket('wss://ua7u2vwiqh.execute-api.eu-west-3.amazonaws.com/dev', [])
   let generalUIUpdateInterval = 2000
 
-  // let tryAgainTimeout = setTimeout(() => {
-  //   console.log("trying again!")
-  //   peerNode(SimplePeer, WebSocket, wrtc, html, opts)
-  // }, 20000)
-
-  let tryAgainTimeout
-
   let peers = {}
-  let myId
+
   // Connection opened
   socket.addEventListener('open', function (event) {
     console.log("INIT!")
     socket.send(JSON.stringify({ event: "init" }));
-
-    // tryAgainTimeout = setTimeout(() => {
-    //   console.log("trying again!")
-    //   socket.send(JSON.stringify({ event: "init" }));
-    // }, 10000)
-    // socket.send(JSON.stringify({ event: "init" }));
   });
-
-  function startSpeedTest(peer) {
-    let size = 150
-    let increment = true
-    // wait for 'connect' event before using the data channel
-    setInterval(() => {
-      try {
-        peer.send(new ArrayBuffer(size += (increment ? 10 : 0)))
-      } catch (err) {
-        // console.log(err)
-        size -= 20
-        // increment = false
-      }
-    }, 0)
-  }
 
   function cleanPeers() {
     let newPeers = {}
@@ -57,7 +26,6 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
 
   function Peer(socket, peerId, opts, html) {
     const sendQueue = []
-    const listeners = []
 
     const peer = {
       id: peerId,

@@ -109,7 +109,7 @@
 
 <body>
   <div id="main">
-    <h1 id="title">P2P (WebRTC) Speed Test</h1>
+    <h1 id="title">Speed-Test (for Devs)</h1>
     <p>Open this website in different browsers and connect between them to test download speeds through WebRTC P2P protocol.</p>
     <p>To play with cloud hosted Peers, click on the "Wake up Peers" button.</p>
   </div>
@@ -139,6 +139,8 @@
 <script src="peerNode/emojiHash.js"></script>
 <script>
   const template1 = document.getElementById("boxTemplate1")
+
+  localPeer
 
   function limitNumber(n) {
     return Math.floor(n * 100) / 100
@@ -297,7 +299,141 @@
     return tools
   }
 
-  peerNode(
+  function newCDN(peer, opts) {
+    let peerId = peer.id
+    let elem1 = document.createElement('div')
+    elem1.classList = ['node']
+    elem1.id = peerId
+
+    let elem2 = document.createElement('div')
+
+    let elem3 = document.createElement('div')
+    elem3.classList = ['text']
+
+    let name = document.createElement('div')
+    elem3.append(name)
+    name.style = "margin-bottom: 0px; font-size: 2.3em;"
+
+    let nick = document.createElement('div')
+    elem3.append(nick)
+    nick.textContent = peer.nick
+
+    let latency = document.createElement('div')
+    elem3.append(latency)
+    latency.textContent = 'connecting...'
+
+    let upload = document.createElement('div')
+    elem3.append(upload)
+    upload.style = "text-align: right;"
+
+    let download = document.createElement('div')
+    elem3.append(download)
+    download.style = "text-align: right;"
+
+    elem2.append(elem3)
+    elem1.append(elem2)
+
+    name.textContent = peer.id
+    emojiHash(peerId, 5).then(hash => {
+      name.textContent = hash
+      peer.hashId = hash
+    })
+
+    let connectButton = document.createElement('a')
+
+    let downloadButton = document.createElement('a')
+    downloadButton.id = "downloadButton"
+    downloadButton.className = "mainbutton"
+    downloadButton.style = "display: none;"
+    downloadButton.textContent = "Download"
+    elem3.append(downloadButton)
+
+    downloadButton.onclick = () => {
+      if (peer.downloadStatus) {
+        peer.stopDownloadFromPeer()
+      } else {
+        peer.startDownloadFromPeer()
+      }
+    }
+
+    name.textContent = peer.id
+
+    document.getElementById("boxes").appendChild(elem1)
+
+    let tools = {
+      updateDownloadButton: () => {
+        if (downloadButton) {
+          // console.log("<<< updateDownloadButton >>>", peer.downloadStatus, downloadButton)
+          if (peer.downloadStatus) {
+            downloadButton.textContent = "Stop"
+          } else {
+            downloadButton.textContent = "Download"
+          }
+        }
+      },
+      updateSpeedStats: () => {
+        peer.uploadUnits = "Kbps"
+        let received = (peer.localhost ? peer.totalBufferSentCount : peer.totalBufferReceivedCount) * 8 / 1024
+        let sent = (peer.localhost ? peer.totalBufferReceivedCount : peer.totalBufferSentCount) * 8 / 1024
+
+        if (received > 1024) {
+          received = received / 1024
+          peer.uploadUnits = "Mbps"
+        }
+        peer.uploadSpeed = limitNumber(received / (peer.uiUpdateInterval / 1000))
+        peer.totalBufferReceivedCount = 0
+
+        peer.downloadUnits = "Kbps"
+        if (sent > 1024) {
+          sent = sent / 1024
+          peer.downloadUnits = "Mbps"
+        }
+
+        peer.totalBufferSentCount = 0
+
+        peer.uploadSpeed = limitNumber(received / (peer.uiUpdateInterval / 1000))
+        peer.downloadSpeed = limitNumber(sent / (peer.uiUpdateInterval / 1000))
+
+
+      },
+      render: () => {
+        tools.updateSpeedStats()
+
+        if(peer.connected && !peer.isServer) {
+          connectButton.style = ""
+        } else {
+          connectButton.style = "display: none;"
+        }
+
+        if (peer.uploadToken && !peer.localhost) {
+          downloadButton.style = ""
+        }
+
+        nick.textContent = peer.nick
+
+        download.textContent = peer.downloadSpeed + " " + peer.downloadUnits + " 🔽"
+        upload.textContent = peer.uploadSpeed + " " + peer.uploadUnits + " 🔼"
+        nick.textContent = peer.nick
+        // if (!isNaN(peer.latency)) {
+        // let latency = peer.latency == 0 ? '< 1' : peer.latency
+        latency.textContent = peer.latency + "."
+        setTimeout(() => {
+          latency.textContent = peer.latency
+        }, 100)
+        // }
+      },
+      remove: () => {
+        elem1.style = "display: none;"
+      }
+    }
+
+    // setInterval(tools.render, peer.uiUpdateInterval)
+    tools.render()
+
+    return tools
+  }
+
+  localPeer = peerNode(
     SimplePeer,
     WebSocket,
     wrtc,
