@@ -43,6 +43,17 @@ const config = {
         }
       ]
     },
+    'whois': {
+      'handler': "handler.whois",
+      'events': [
+        {
+          "http": {
+            "path": "whois",
+            "method": "get"
+          }
+        }
+      ]
+    },
   }
 }
 

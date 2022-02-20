@@ -1,5 +1,9 @@
 
 function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
+
+
+
+
   const socket = new WebSocket('wss://ua7u2vwiqh.execute-api.eu-west-3.amazonaws.com/dev', [])
   let generalUIUpdateInterval = 2000
 
