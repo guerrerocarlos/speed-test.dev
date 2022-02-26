@@ -5,23 +5,230 @@
 
 <style>
   body {
-    background-color: #060d21;
-    color: green;
+    background-color: #1c2230;
+    color: white;
     font-family: monospace;
     margin: 30px;
   }
 
+  .connectButton {
+    font-size: 0.8em;
+  }
+
+  .peerButtons {
+    display: inline-block;
+    /* float: right; */
+  }
+
+  .displayBlock {
+    display: block;
+    cursor: pointer;
+  }
+
+  .inlineBlock {
+    display: inline-block;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .dotted {
+    border: dotted 3px #000000;
+  }
+
+  table {
+    border-collapse: collapse;
+    /*This property collapses borders together*/
+  }
+
+  .boxes {
+    color: white;
+  }
+
+  .mainTable {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    /* border: 1px solid; */
+  }
+
+  table,
+  th,
+  td {
+    border: 1px solid;
+    border-color: #192648;
+  }
+
+  .alignRight {
+    text-align: right;
+  }
+
+  .latencyColumn {
+    /* width: 150px; */
+  }
+
+  .nickColumn {
+    width: 100px;
+    min-width: 110px;
+    font-size: 1.5em;
+  }
+
+  .cursive {
+    font-size: 0.8em;
+    /* font-style: italic; */
+  }
+
+  .nameColumn {
+    font-size: 1.5em;
+    width: 110px;
+    min-width: 100px;
+  }
+
+  .downloadColumn {
+    text-align: right;
+    min-width: 100px;
+    width: 100px;
+  }
+
+  .uploadColumn {
+    text-align: right;
+    min-width: 100px;
+    width: 100px;
+  }
+
   .node {
+    background-color: #1b2334;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    align-content: space-around;
+  }
+
+  .infoTable {
+    /* width: 30%; */
+    /* min-width: 200px; */
+    /* display: inline-block; */
+    order: 5;
+    flex-grow: 1;
+    flex-basis: 30%;
+    /* flex-shrink: 10; */
+  }
+
+  .latencyTd {
+    width: 60px;
+  }
+
+  .nameTd {
+    width: 170px;
+    min-width: 170px;
+  }
+
+
+
+  .connectTable {
+    /* width: 30%; */
+    /* min-width: 200px; */
+    /* display: inline-block; */
+    order: 6;
+    flex-grow: 1;
+    flex-basis: 200px;
+    flex-basis: 30%;
+  }
+
+  .speedTable {
+    /* width: auto; */
+    /* min-width: 200px; */
+    /* display: inline-block; */
+    order: 7;
+    flex-grow: 1;
+    flex-basis: 30%;
+  }
+
+  /* .floatRight {
+    /* float: right; */
+  /* display: block;
+    margin-left: auto;
+    margin-right: 0; */
+  /* flex-grow: 1; */
+  /* text-align: right */
+  /* position: absolute; */
+  /* right: 0; */
+  /* } */
+
+  .maxSpeed {
+    font-size: 1.5em;
+    font-weight: 800;
+  }
+
+  .terminalButtons {
+    margin: 20px;
+  }
+
+  .terminal {
+    padding: 7px;
+    margin-top: 15px;
+    border: green;
+    /* border-style: solid; */
+    border-radius: 5px 5px 5px 5px;
+    overflow: auto;
+    background-color: #060d21;
+  }
+
+  .tdSpeed {
+    width: 100px;
+    text-align: right;
+  }
+
+  .node2 {
     /* width: 320px; */
     width: auto;
     /* height: 200px; */
-    border: green;
-    border-style: solid;
-    border-radius: 5px 5px 5px 5px;
-    display: inline-block;
+    /* border: green; */
+    /* border-style: solid; */
+    background-color: #1b2334;
+    /* border-radius: 5px 5px 5px 5px; */
+    /* display: inline-block; */
     margin-top: 5px;
     margin-right: 5px;
     vertical-align: top;
+    /* display: flex; */
+    /* flex-direction: row; */
+    /* align-items:left; */
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .title {
+    font-weight: 800;
+  }
+
+
+  /* .nodeLine { */
+  /* display: flex; */
+  /* display: inline-block; */
+  /* flex-grow: 1; */
+  /* flex-direction: row; */
+  /* } */
+
+  .mainTerminal {
+    color: white;
+    padding: 10px;
+  }
+
+  .terminalLine {
+    /* position: relative;
+    left: 0;
+    width: 200vw; */
+    color: #7a7a7a;
+    white-space: nowrap;
+  }
+
+  .terminalLineDestination {
+    color: white;
   }
 
   .whiteNode {
@@ -30,7 +237,7 @@
     /* height: 200px; */
     border: white;
     border-style: solid;
-    border-radius: 5px 5px 5px 5px;
+    /* border-radius: 5px 5px 5px 5px; */
     display: inline-block;
     margin-top: 5px;
     margin-right: 5px;
@@ -56,51 +263,47 @@
     color: white;
   }
 
-  .mainbutton {
+
+
+  /* .name {
+    min-width: 100px;
+  } */
+
+  .mainButton {
     cursor: pointer;
-    border: 1px solid #268a16;
+    /* border: 1px solid #268a16; */
+    color: black;
+    background-color: white;
     border-radius: 6px;
-    display: block;
-    width: 100%;
-    text-align: center;
-    padding-top: 7px;
-    padding-bottom: 7px;
-    margin-top: 10px;
-    width: 100%;
-    /* box-shadow: inset 0px 1px 0px 0px #caefab;
-    background: linear-gradient(to bottom, #77d42a 5%, #5cb811 100%);
-    background-color: #77d42a;
     display: inline-block;
-    cursor: pointer;
-    color: #306108;
-    font-family: Arial;
-    font-size: 15px;
-    font-weight: bold;
-    padding: 6px 24px;
-    text-decoration: none;
-    text-shadow: 0px 1px 0px #aade7c;
-    text-align: center; */
+    text-align: center;
+    padding: 7px;
+    margin-right: 5px;
   }
 
-  .mainbuttonDisabled {
+  .disabledButton {
+    background-color: gray;
+  }
+
+  .mainButtonDisabled {
     cursor: pointer;
     border: 0px;
     border-radius: 6px;
     display: block;
     width: 100%;
     text-align: center;
-    padding-top: 7px;
-    padding-bottom: 7px;
+    padding: 7px;
+    /* padding-bottom: 7px; */
     margin-top: 10px;
     width: 100%;
   }
 
-  /* .mainbutton:hover {
+  /* .mainButton:hover {
     background: linear-gradient(to bottom, #5cb811 5%, #77d42a 100%);
     background-color: #5cb811;
   } */
 
-  /* .mainbutton:active {
+  /* .mainButton:active {
     position: relative;
     top: 1px;
   } */
@@ -109,25 +312,49 @@
 
 <body>
   <div id="main">
-    <h1 id="title">Speed-Test (for Devs)</h1>
-    <p>Open this website in different browsers and connect between them to test download speeds through WebRTC P2P protocol.</p>
-    <p>To play with cloud hosted Peers, click on the "Wake up Peers" button.</p>
+    <h2 id="maxUpload"></h2>
+    <!-- <h2 id="maxDownload"></h2> -->
+
   </div>
-  <div id="boxes" style="display: inline; ">
+  <div id="mainTerminal" class="terminal">
+    <div>
+      $ speed-test --webrtc=enabled
+    </div>
+    <div id="boxes" style="display: inline; ">
+      <table id="mainTable" class="mainTable">
+        <tr style="font-weight: 800;">
+          <td>Name</td>
+          <td>Description</td>
+          <td class="alignRight">Upload</td>
+          <td class="alignRight">Download</td>
+        </tr>
+      </table>
+    </div>
+    <div id="add" class="terminalButtons" style="display: inline-block;">
+      <a id="wakeUpPeers" class="mainButton">➕ Wake up WebRTC Peers</a>
+      <a id="startbutton" class="mainButton">▶️ START SPEED-TEST</a>
+    </div>
   </div>
-  <div id="add" style="display: inline-block;">
-    <a id="wakeUpPeers" class="mainbutton text pointer">➕ Wake up Peers</a>
-  </div>
-  <div id="traceroutes" style="display: inline; ">
-  </div>
+
+
 
   <div id="boxTemplate1" style="display: none;">
     <div class="nodeContent leftLabel">
       <div id="id-text" class="text">us-east-1</br>14ms</div>
     </div>
   </div>
+  <div style="margin-left: 5px;">
+    <h3>Readme</h3>
+    <p>Open this page in different browsers and connect between them to test download speeds through WebRTC P2P
+      protocol.</p>
+    <p>To test with cloud hosted <b>WebRTC</b> Peers, click on the "Wake up WebRTC Peers" button.</p>
+    <p>"Start Speed-test button": Triggers a normal download from 6 simultaneous CDN services</p>
+    <h3>Traceroute</h3>
+    <p>Detailed reverse-traceroute from different AWS regions to your public IP:</p>
+  </div>
 
-
+  <div id="traceroutes" style="display: inline; ">
+  </div>
 </body>
 
 <script>
@@ -135,98 +362,184 @@
   let wrtc
 </script>
 <script src="simplepeer.min.js"></script>
+<script src="get.js"></script>
 <script src="peerNode/peer.js"></script>
 <script src="peerNode/emojiHash.js"></script>
+<script src="peerNode/traceroute.js"></script>
 <script>
   const template1 = document.getElementById("boxTemplate1")
 
-  localPeer
+  let maxUpload = document.getElementById("maxUpload")
+  // let maxDownload = document.getElementById("maxDownload")
 
+  let myPeer
   function limitNumber(n) {
     return Math.floor(n * 100) / 100
   }
 
+  function parseSpeed(value) {
+    let units = "Kbps"
+    let unit = "KB"
+    if (value > 1024) {
+      value = parseInt(value / 1024)
+      units = "Mbps"
+      unit = "MB"
+    }
+    // if (value > 1024) {
+    //   received = parseInt(value / 1024)
+    //   units = "Gbps"
+    // }
+    return { value: Math.floor(value * 100) / 100, units, unit }
+  }
+  let localIp
+  let maxDownload
   function newPeer(peer, opts) {
     let peerId = peer.id
     console.log("NEW PEER HTML", peerId)
-    let elem1 = document.createElement('div')
-    elem1.classList = ['node']
-    elem1.id = peerId
 
-    let elem2 = document.createElement('div')
+    let tableRow = document.createElement('tr')
 
+    let nickCol = document.createElement('td')
+    let nick = document.createElement('span')
+    nickCol.appendChild(nick)
+    nickCol.classList.add("nickColumn")
+    tableRow.appendChild(nickCol)
 
-    let elem3 = document.createElement('div')
-    elem3.classList = ['text']
+    // let name = document.createElement('td')
+    // tableRow.appendChild(name)
+    // name.classList.add("nameColumn")
 
-    let name = document.createElement('div')
-    elem3.append(name)
-    name.style = "margin-bottom: 0px; font-size: 2.3em;"
-
-    let nick = document.createElement('div')
-    elem3.append(nick)
-    nick.textContent = peer.nick
-
+    let description = document.createElement('td')
+    let type = document.createElement('div')
+    type.classList.add("title")
     let latency = document.createElement('div')
-    elem3.append(latency)
-    latency.textContent = 'connecting...'
+    description.appendChild(type)
+    description.appendChild(latency)
 
-    let upload = document.createElement('div')
-    elem3.append(upload)
-    upload.style = "text-align: right;"
+    let totals = document.createElement('div')
+    totals.classList.add("inlineBlock")
+    description.appendChild(totals)
+
+
+    if (peer.localhost) {
+      let maxs = document.createElement('span')
+      let maxsLabel = document.createElement('div')
+      maxsLabel.classList.add("inlineBlock")
+
+      maxDownload = document.createElement('div')
+      maxsLabel.textContent = "Max Download: "
+      maxsLabel.style = "margin-right: 7px;"
+      maxDownload.textContent = "0 Mbps"
+      maxDownload.classList.add("inlineBlock")
+      maxDownload.classList.add("maxSpeed")
+
+      maxs.appendChild(maxsLabel)
+      maxs.appendChild(maxDownload)
+      description.appendChild(maxs)
+    }
+
+    description.classList.add("latencyColumn")
+    tableRow.appendChild(description)
+
+    let downloadSpace = document.createElement('td')
+    let uploadSpace = document.createElement('td')
+    uploadSpace.classList.add("uploadColumn")
+    downloadSpace.classList.add("downloadColumn")
+
+    let connect = document.createElement('div')
+    description.appendChild(connect)
+
+    let downloadBtn = document.createElement('div')
+    let breakTag = document.createElement('br')
 
     let download = document.createElement('div')
-    elem3.append(download)
-    download.style = "text-align: right;"
+    let upload = document.createElement('span')
 
-    elem2.append(elem3)
-    elem1.append(elem2)
+    description.appendChild(downloadBtn)
+    uploadSpace.appendChild(download)
 
-    name.textContent = peer.id
-    emojiHash(peerId, 5).then(hash => {
-      name.textContent = hash
-      peer.hashId = hash
-    })
+    downloadSpace.appendChild(upload)
 
-    let connectButton = document.createElement('a')
+    tableRow.appendChild(downloadSpace)
+    tableRow.appendChild(uploadSpace)
 
-    if (!peer.localhost) {
-      connectButton.className = "mainbutton"
-      // connectButton.style = "margin-top: 20px; width: 100%;"
+    nick.textContent = peer.nick
+
+    latency.textContent = '...'
+    let connectButton
+    let downloadButton
+
+    if (peer.cdn) {
+      nick.classList.add("cursive")
+      // upload.classList.remove("hidden")
+    } else {
+      // upload.classList.add("hidden")
+      // download.classList.add("hidden")
+    }
+
+    if (peer.localhost) {
+      localIp = document.createElement('div')
+      description.appendChild(localIp)
+      latency.classList.add("hidden")
+    }
+
+    if (!peer.localhost && !peer.cdn) {
+      type.textContent = "WebRTC Peer"
+      connectButton = document.createElement('a')
+      description.appendChild(connectButton)
+      connectButton.classList.add("mainButton")
+      connectButton.classList.add("peerButtons")
+
       connectButton.textContent = "Connect"
-      connectButton.textContent = "Connect"
-      connectButton.style = "display: none;"
-      elem3.append(connectButton)
       connectButton.onclick = () => {
         console.log("ENABLE UPLOAD")
         connectButton.textContent = "Connected"
-        connectButton.className = "mainbuttonDisabled"
+        connect.classList.add("hidden")
+        upload.classList.remove("hidden")
+        // connectButton.className = "mainButtonDisabled"
         peer.enableUpload()
       }
-    } else {
-      elem1.className = "whiteNode"
-    }
+      downloadButton = document.createElement('a')
+      description.appendChild(downloadButton)
 
-    let downloadButton = document.createElement('a')
-    downloadButton.id = "downloadButton"
-    downloadButton.className = "mainbutton"
-    downloadButton.style = "display: none;"
-    downloadButton.textContent = "Download"
-    elem3.append(downloadButton)
+      downloadButton.id = "downloadButton"
+      downloadButton.classList.add("mainButton")
+      connectButton.classList.add("peerButtons")
+      downloadButton.classList.add("disabledButton")
+      downloadButton.textContent = "Download"
 
-    downloadButton.onclick = () => {
-      if (peer.downloadStatus) {
-        peer.stopDownloadFromPeer()
-      } else {
-        peer.startDownloadFromPeer()
+      downloadButton.onclick = () => {
+        if (peer.downloadStatus) {
+          peer.stopDownloadFromPeer()
+        } else {
+          peer.startDownloadFromPeer()
+        }
       }
+    } else {
+
+      // elem1.className = "whiteNode"
+      // elem1.style = "font-size: 1.7em;"
+      // elem1.style = "font-size: 3em;"
     }
 
-    name.textContent = peer.id
+    if (peer.id) {
+      nick.textContent = peer.id
+      emojiHash(peerId, 5).then(hash => {
+        nick.textContent = hash
+        peer.hashId = hash
+      })
+    } else {
+      // name.textContent = "⬜️⬜️⬜️⬜️⬜️"
+    }
 
-    document.getElementById("boxes").appendChild(elem1)
+    document.getElementById("mainTable").appendChild(tableRow)
 
     let tools = {
+      setHashId: () => {
+        emojiHash(peer.id, 5).then(hash => {
+          nick.textContent = hash
+        })
+      },
       updateDownloadButton: () => {
         if (downloadButton) {
           // console.log("<<< updateDownloadButton >>>", peer.downloadStatus, downloadButton)
@@ -239,57 +552,105 @@
       },
       updateSpeedStats: () => {
         peer.uploadUnits = "Kbps"
-        let received = (peer.localhost ? peer.totalBufferSentCount : peer.totalBufferReceivedCount) * 8 / 1024
-        let sent = (peer.localhost ? peer.totalBufferReceivedCount : peer.totalBufferSentCount) * 8 / 1024
+        let received = 0
+        let sent = 0
 
-        if (received > 1024) {
-          received = received / 1024
-          peer.uploadUnits = "Mbps"
+        if (peer.localhost && peer.cdnPeers) {
+          peer.cdnPeers.forEach((cdnPeer) => {
+            received += cdnPeer.cdnDownload
+          })
+          peer.cdnPeers.forEach((cdnPeer) => {
+            sent += cdnPeer.cdnUpload
+          })
         }
-        peer.uploadSpeed = limitNumber(received / (peer.uiUpdateInterval / 1000))
-        peer.totalBufferReceivedCount = 0
 
-        peer.downloadUnits = "Kbps"
-        if (sent > 1024) {
-          sent = sent / 1024
-          peer.downloadUnits = "Mbps"
+        if (peer.cdn) {
+          received += peer.cdnUpload
+        } else {
+          received += (peer.localhost ? peer.totalBufferSentCount : peer.totalBufferReceivedCount) * 8 / 1024
         }
+
+        if (peer.cdn) {
+          sent += peer.cdnDownload
+        } else {
+          sent += (peer.localhost ? peer.totalBufferReceivedCount : peer.totalBufferSentCount) * 8 / 1024
+        }
+
+        if (peer.lastSpeedCalculation) {
+          sent = sent * 1000 / (new Date() - peer.lastSpeedCalculation)
+          received = received * 1000 / (new Date() - peer.lastSpeedCalculation)
+        }
+
+        let sentParsed = parseSpeed(sent)
+        peer.downloadSpeed = sentParsed.value
+        peer.downloadUnits = sentParsed.units
+
+        let receivedParsed = parseSpeed(received)
+        peer.uploadSpeed = receivedParsed.value
+        peer.uploadUnits = receivedParsed.units
 
         peer.totalBufferSentCount = 0
+        peer.totalBufferReceivedCount = 0
 
-        peer.uploadSpeed = limitNumber(received / (peer.uiUpdateInterval / 1000))
-        peer.downloadSpeed = limitNumber(sent / (peer.uiUpdateInterval / 1000))
+        peer.lastSpeedCalculation = new Date()
 
 
       },
       render: () => {
         tools.updateSpeedStats()
 
-        if(peer.connected && !peer.isServer) {
-          connectButton.style = ""
-        } else {
-          connectButton.style = "display: none;"
-        }
-
         if (peer.uploadToken && !peer.localhost) {
-          downloadButton.style = ""
+          // downloadButton.style = ""
+          downloadButton.classList.remove("disabledButton")
+          download.classList.remove("hidden")
         }
 
-        nick.textContent = peer.nick
+        if (peer.downloadLoadedBytes) {
+          let parsed = parseSpeed(peer.downloadLoadedBytes * 1024)
+          download.textContent += ` ${parsed.value}${parsed.unit}`
+        }
+        if (peer.cdn) {
+          if (peer.downloadTotalBytes) {
+            let parsedTotal = parseSpeed(peer.downloadTotalBytes * 1024)
+            let parsedUpload = parseSpeed(peer.downloadLoadedBytes * 1024)
+            totals.textContent = `${parsedUpload.value} ${parsedUpload.unit}/${parsedTotal.value}${parsedTotal.unit}`
+          }
+        }
 
-        download.textContent = peer.downloadSpeed + " " + peer.downloadUnits + " 🔽"
-        upload.textContent = peer.uploadSpeed + " " + peer.uploadUnits + " 🔼"
-        nick.textContent = peer.nick
-        // if (!isNaN(peer.latency)) {
-        // let latency = peer.latency == 0 ? '< 1' : peer.latency
-        latency.textContent = peer.latency + "."
-        setTimeout(() => {
-          latency.textContent = peer.latency
-        }, 100)
-        // }
+        download.textContent = peer.downloadSpeed + " " + peer.downloadUnits
+        upload.textContent = peer.uploadSpeed + " " + peer.uploadUnits
+
+        if (peer.localhost) {
+          if (peer.downloadSpeed > peer.maxDownloadSpeed) {
+            peer.maxDownloadSpeed = peer.downloadSpeed
+            if (maxDownload) maxDownload.textContent = download.textContent
+          }
+          if (peer.uploadSpeed > peer.maxUploadSpeed) {
+            peer.maxUploadSpeed = peer.uploadSpeed
+            maxUpload.textContent = upload.textContent
+          }
+          type.textContent = "localhost"
+        } else {
+          if (!peer.cdn) {
+            latency.textContent = peer.latency + "."
+            setTimeout(() => {
+              latency.textContent = peer.latency
+            }, 200)
+          } else {
+            latency.textContent = peer.latency
+          }
+        }
+
       },
       remove: () => {
-        elem1.style = "display: none;"
+        tableRow.classList.add("hidden")
+      },
+      updateNick: () => {
+        console.log("UPDATE NICK!", peer.nick)
+        nick.textContent = peer.nick
+        if (peer.isServer) {
+          connect.textContent = "Connected"
+        }
       }
     }
 
@@ -299,141 +660,7 @@
     return tools
   }
 
-  function newCDN(peer, opts) {
-    let peerId = peer.id
-    let elem1 = document.createElement('div')
-    elem1.classList = ['node']
-    elem1.id = peerId
-
-    let elem2 = document.createElement('div')
-
-    let elem3 = document.createElement('div')
-    elem3.classList = ['text']
-
-    let name = document.createElement('div')
-    elem3.append(name)
-    name.style = "margin-bottom: 0px; font-size: 2.3em;"
-
-    let nick = document.createElement('div')
-    elem3.append(nick)
-    nick.textContent = peer.nick
-
-    let latency = document.createElement('div')
-    elem3.append(latency)
-    latency.textContent = 'connecting...'
-
-    let upload = document.createElement('div')
-    elem3.append(upload)
-    upload.style = "text-align: right;"
-
-    let download = document.createElement('div')
-    elem3.append(download)
-    download.style = "text-align: right;"
-
-    elem2.append(elem3)
-    elem1.append(elem2)
-
-    name.textContent = peer.id
-    emojiHash(peerId, 5).then(hash => {
-      name.textContent = hash
-      peer.hashId = hash
-    })
-
-    let connectButton = document.createElement('a')
-
-    let downloadButton = document.createElement('a')
-    downloadButton.id = "downloadButton"
-    downloadButton.className = "mainbutton"
-    downloadButton.style = "display: none;"
-    downloadButton.textContent = "Download"
-    elem3.append(downloadButton)
-
-    downloadButton.onclick = () => {
-      if (peer.downloadStatus) {
-        peer.stopDownloadFromPeer()
-      } else {
-        peer.startDownloadFromPeer()
-      }
-    }
-
-    name.textContent = peer.id
-
-    document.getElementById("boxes").appendChild(elem1)
-
-    let tools = {
-      updateDownloadButton: () => {
-        if (downloadButton) {
-          // console.log("<<< updateDownloadButton >>>", peer.downloadStatus, downloadButton)
-          if (peer.downloadStatus) {
-            downloadButton.textContent = "Stop"
-          } else {
-            downloadButton.textContent = "Download"
-          }
-        }
-      },
-      updateSpeedStats: () => {
-        peer.uploadUnits = "Kbps"
-        let received = (peer.localhost ? peer.totalBufferSentCount : peer.totalBufferReceivedCount) * 8 / 1024
-        let sent = (peer.localhost ? peer.totalBufferReceivedCount : peer.totalBufferSentCount) * 8 / 1024
-
-        if (received > 1024) {
-          received = received / 1024
-          peer.uploadUnits = "Mbps"
-        }
-        peer.uploadSpeed = limitNumber(received / (peer.uiUpdateInterval / 1000))
-        peer.totalBufferReceivedCount = 0
-
-        peer.downloadUnits = "Kbps"
-        if (sent > 1024) {
-          sent = sent / 1024
-          peer.downloadUnits = "Mbps"
-        }
-
-        peer.totalBufferSentCount = 0
-
-        peer.uploadSpeed = limitNumber(received / (peer.uiUpdateInterval / 1000))
-        peer.downloadSpeed = limitNumber(sent / (peer.uiUpdateInterval / 1000))
-
-
-      },
-      render: () => {
-        tools.updateSpeedStats()
-
-        if(peer.connected && !peer.isServer) {
-          connectButton.style = ""
-        } else {
-          connectButton.style = "display: none;"
-        }
-
-        if (peer.uploadToken && !peer.localhost) {
-          downloadButton.style = ""
-        }
-
-        nick.textContent = peer.nick
-
-        download.textContent = peer.downloadSpeed + " " + peer.downloadUnits + " 🔽"
-        upload.textContent = peer.uploadSpeed + " " + peer.uploadUnits + " 🔼"
-        nick.textContent = peer.nick
-        // if (!isNaN(peer.latency)) {
-        // let latency = peer.latency == 0 ? '< 1' : peer.latency
-        latency.textContent = peer.latency + "."
-        setTimeout(() => {
-          latency.textContent = peer.latency
-        }, 100)
-        // }
-      },
-      remove: () => {
-        elem1.style = "display: none;"
-      }
-    }
-
-    // setInterval(tools.render, peer.uiUpdateInterval)
-    tools.render()
-
-    return tools
-  }
-
-  localPeer = peerNode(
+  myPeer = peerNode(
     SimplePeer,
     WebSocket,
     wrtc,
@@ -441,7 +668,7 @@
       newPeer,
     },
     {
-      myNick: "(This browser)"
+      myNick: "localhost"
     })
 
   let limitPeers = localStorage.getItem('limitPeers');
@@ -463,13 +690,28 @@
     // }
   }
 
+  let startButton = document.getElementById("startbutton")
+  startButton.onclick = () => {
+    // console.log("START! (24MB)")
+    startButton.textContent = "🔁 Repeat Test"
+    myPeer.cdnPeers.forEach((peer) => {
+      peer.startDownloadFromCDN()
+    })
+  }
 
   // for (let i = 0; i < 3; i++) {
   //   newPeer(i)
   // }
 
 </script>
-<script src="peerNode/traceroute.js"></script>
+<script src="cdnPeers.js"></script>
+<script>
+  get("https://utils.s.r3js.com/geo").then(geo => {
+    console.log("GEO", geo)
+    localIp.textContent = `Public ip: ${geo.ip}`
+    traceroute(geo)
+  })
 
+</script>
 
 </html>

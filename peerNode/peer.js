@@ -2,7 +2,7 @@
 function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
 
   const socket = new WebSocket('wss://ua7u2vwiqh.execute-api.eu-west-3.amazonaws.com/dev', [])
-  let generalUIUpdateInterval = 2000
+  let generalUIUpdateInterval = 1000
 
   let peers = {}
 
@@ -32,12 +32,11 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
       dead: false,
       totalBufferReceivedCount: 0,
       totalBufferSentCount: 0,
-      lastBufferCount: null,
       downloadSpeed: 0,
       downloadUnits: "Kbps",
       uploadSpeed: 0,
       uploadUnits: "Kbps",
-      latency: "Initializing..",
+      latency: "Init..",
       // updateUI: (peer) => {
       //   peer.uploadUnits = "Kbps"
       //   let received = peer.totalBufferReceivedCount * 8 / 1024
@@ -219,59 +218,58 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
       }
     })
 
-
-
+    let onCallbacks = {
+      setNick: (payload, peer) => {
+        console.log("😂😂😂 GOT NICK!", payload)
+        peer.nick = payload.nick
+        if (peer.html) peer.html.updateNick()
+      },
+      request: (payload, peer) => {
+        console.log("GOT REQUEST", payload)
+        if (payload.execute) {
+          console.log(`EXECUTING peer.${payload.execute}()`, peer[payload.execute])
+          peer[payload.execute](payload.param)
+        }
+      },
+      enableUpload: (payload, peer) => {
+        console.log("GOT uploadToken for peer", payload)
+        peer.uploadToken = payload.token
+        peer.isServer = payload.isServer
+      },
+      bufferReceived: (payload, peer) => {
+        if (peer.sendingBuffers) {
+          peer.sendBuffer()
+        }
+      },
+      buffer: (payload, peer) => {
+        // console.log("🚚 got buffer", payload)
+        console.log("🧡 GOT BUFFERS!")
+  
+        // if (peer.receivingBuffers) {
+        peer.totalBufferReceivedCount += payload.length
+        myPeer.totalBufferReceivedCount += payload.length
+        peer.send('bufferReceived', { bufferReceivedLength: payload.length })
+        // }
+      },
+      ping: (payload, peer) => {
+        payload.pong = true
+        peer.send("pong", payload)
+      },
+      pong: (payload, peer) => {
+        // console.log("TOOK", new Date() - pings[payload], "miliseconds from", peer.id)
+        // if (peer.html) {
+        peer.latency = (new Date() - pings[payload]) + " ms"
+        // peer.html.render(peer)
+        delete pings[payload]
+        // }
+      },
+      default: (payload, peer) => {
+        console.log("GOT RAW", peer.id, payload)
+      }
+    }
     return peer
   }
 
-  let onCallbacks = {
-    setNick: (payload, peer) => {
-      console.log("😂😂😂 GOT NICK!", payload)
-      peer.nick = payload.nick
-    },
-    request: (payload, peer) => {
-      console.log("GOT REQUEST", payload)
-      if (payload.execute) {
-        console.log(`EXECUTING peer.${payload.execute}()`, peer[payload.execute])
-        peer[payload.execute](payload.param)
-      }
-    },
-    enableUpload: (payload, peer) => {
-      console.log("GOT uploadToken for peer", payload)
-      peer.uploadToken = payload.token
-      peer.isServer = payload.isServer
-    },
-    bufferReceived: (payload, peer) => {
-      if (peer.sendingBuffers) {
-        peer.sendBuffer()
-      }
-    },
-    buffer: (payload, peer) => {
-      // console.log("🚚 got buffer", payload)
-      console.log("🧡 GOT BUFFERS!")
-
-      // if (peer.receivingBuffers) {
-      peer.totalBufferReceivedCount += payload.length
-      myPeer.totalBufferReceivedCount += payload.length
-      peer.send('bufferReceived', { bufferReceivedLength: payload.length })
-      // }
-    },
-    ping: (payload, peer) => {
-      payload.pong = true
-      peer.send("pong", payload)
-    },
-    pong: (payload, peer) => {
-      // console.log("TOOK", new Date() - pings[payload], "miliseconds from", peer.id)
-      // if (peer.html) {
-      peer.latency = (new Date() - pings[payload]) + " ms"
-      // peer.html.render(peer)
-      delete pings[payload]
-      // }
-    },
-    default: (payload, peer) => {
-      console.log("GOT RAW", peer.id, payload)
-    }
-  }
 
   // let myPeerUI
   let myPeer = {
@@ -285,6 +283,8 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
     totalBufferReceivedCount: 0,
     totalBufferSentCount: 0,
     uiUpdateInterval: generalUIUpdateInterval,
+    maxDownloadSpeed: 0,
+    maxUploadSpeed: 0,
     localhost: true,
     downloadStatus: false,
     latency: "-",
@@ -309,8 +309,16 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
         // peers[peerId].html.updateDownloadButton()
       }
       myPeer.html.updateDownloadButton()
+    },
+    setId: (peerId) => {
+      console.log("SET ID!", peerId)
+      myPeer.id = peerId
+      if(myPeer.html) myPeer.html.setHashId()
     }
   }
+
+  if (html) myPeer.html = html.newPeer(myPeer, { autoRender: myPeer.uiUpdateInterval })
+
   let inited 
 
   socket.addEventListener('message', function (event) {
@@ -320,8 +328,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
     console.log("😎 MASTER>", JSON.stringify(payload, null, 2))
 
     if (payload.myId) {
-      myPeer.id = payload.myId
-      if (html) myPeer.html = html.newPeer(myPeer, { autoRender: myPeer.uiUpdateInterval })
+      myPeer.setId(payload.myId)
     }
 
     if (payload.result) {
@@ -367,16 +374,18 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
     }
   }, 1500)
 
-  setInterval(() => {
-    cleanPeers()
-    let connectedPeersCount = 0
-    for (let peerId in peers) {
-      if (peers[peerId].connected) {
-        connectedPeersCount++
-      }
-    }
-    console.log(`[${myPeer.id}]::: Connected to`, Object.keys(peers).length, Object.keys(peers), `connected: ${connectedPeersCount}`)
-  }, 5000)
+  return myPeer
+
+  // setInterval(() => {
+  //   cleanPeers()
+  //   let connectedPeersCount = 0
+  //   for (let peerId in peers) {
+  //     if (peers[peerId].connected) {
+  //       connectedPeersCount++
+  //     }
+  //   }
+  //   console.log(`[${myPeer.id}]::: Connected to`, Object.keys(peers).length, Object.keys(peers), `connected: ${connectedPeersCount}`)
+  // }, 5000)
 }
 
 module.exports = peerNode

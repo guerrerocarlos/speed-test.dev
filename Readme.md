@@ -1,0 +1,1 @@
+Handle closed tab for a long while
