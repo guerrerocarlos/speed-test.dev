@@ -680,7 +680,6 @@
           let average = 0
           if (peer.downloadSpeed > 0) {
             peer.downloadHistoric.push(peer.downloadSpeed)
-            console.log("peer.downloadHistoric", peer.downloadHistoric)
             average = peer.downloadHistoric.map((speed) => {
               return speed
             }).reduce((a, b) => {
