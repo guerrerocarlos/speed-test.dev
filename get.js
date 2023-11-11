@@ -1,4 +1,4 @@
-function get(url, action = 'get', speedEngineHandler) {
+function get(url, action = 'get', speedEngineHandler, completeCallback = () => { }) {
   let startedReceiving
   const xhr = new XMLHttpRequest();
   return new Promise((resolve) => {
@@ -11,10 +11,10 @@ function get(url, action = 'get', speedEngineHandler) {
     }
 
     xhr.upload.addEventListener("progress", updateSpeed);
-    xhr.addEventListener("progress", updateSpeed)
-      ;
+    xhr.addEventListener("progress", updateSpeed);
     xhr.addEventListener("loadend", () => {
       if (speedEngineHandler) speedEngineHandler.update(i, 0)
+      completeCallback()
       try {
         resolve(JSON.parse(xhr.responseText));
       } catch {

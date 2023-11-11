@@ -7,11 +7,11 @@
     { name: "CloudFlare", url: "https://static.speed-test.dev" }
   ]
   cdns.forEach((cdn) => {
-    for (var ii = 0; ii < 3; ii++) {
+    for (var ii = 0; ii < 4; ii++) {
       let peer = {
         nick: cdn.name,
         latency: "CDN",
-        uiUpdateInterval: 2000,
+        uiUpdateInterval: generalUIUpdateInterval,
         cdnDownload: 0,
         cdnUpload: 0,
         cdn: true,
@@ -24,13 +24,19 @@
       myPeer.cdnPeers.push(peer)
       peer.html = newPeer(peer)
 
-
       peer.startDownloadFromCDN = () => {
         peer.getStatuses.push({ loaded: 0, total: 0 })
+        cdnPeersSending++
         // if (peer.downloadIndex === 0) {
         //   peer.downloadIndex += 1
         // }
-        get(`${cdn.url}/230MB.zip?part=` + ii, 'get', speedEngine(peer, myPeer, peer.getStatuses.length - 1))
+        get(`${cdn.url}/230MB.zip?part=` + ii, 'get', speedEngine(peer, myPeer, peer.getStatuses.length - 1), function() {
+          cdnPeersSending--
+          if(cdnPeersSending === 0) {
+            myPeer.html.render()
+            testCompleted()
+          }
+        })
       }
     }
   })

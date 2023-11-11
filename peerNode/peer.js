@@ -2,7 +2,6 @@
 function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
 
   const socket = new WebSocket('wss://ua7u2vwiqh.execute-api.eu-west-3.amazonaws.com/dev', [])
-  let generalUIUpdateInterval = 1000
 
   let peers = {}
 
@@ -80,7 +79,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
       },
       uiUpdateInterval: generalUIUpdateInterval,
       speedInterval: null,
-      uploadInterval: 300,
+      uploadInterval: 333,
       bufferSize: 2000,
       increment: 2000,
       sendBuffer: () => {
@@ -244,7 +243,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
       buffer: (payload, peer) => {
         // console.log("🚚 got buffer", payload)
         console.log("🧡 GOT BUFFERS!")
-  
+
         // if (peer.receivingBuffers) {
         peer.totalBufferReceivedCount += payload.length
         myPeer.totalBufferReceivedCount += payload.length
@@ -313,13 +312,13 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
     setId: (peerId) => {
       console.log("SET ID!", peerId)
       myPeer.id = peerId
-      if(myPeer.html) myPeer.html.setHashId()
+      if (myPeer.html) myPeer.html.setHashId()
     }
   }
 
   if (html) myPeer.html = html.newPeer(myPeer, { autoRender: myPeer.uiUpdateInterval })
 
-  let inited 
+  let inited
 
   socket.addEventListener('message', function (event) {
     // clearTimeout(tryAgainTimeout)

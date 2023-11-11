@@ -27,6 +27,7 @@
 
   .inlineBlock {
     display: inline-block;
+    margin-left: 10px;
   }
 
   .hidden {
@@ -39,6 +40,7 @@
 
   table {
     border-collapse: collapse;
+
     /*This property collapses borders together*/
   }
 
@@ -51,6 +53,7 @@
     margin-top: 20px;
     border-collapse: collapse;
     /* border: 1px solid; */
+    color: gray;
   }
 
   table,
@@ -58,6 +61,7 @@
   td {
     border: 1px solid;
     border-color: #192648;
+    border-color: #060d21
   }
 
   .alignRight {
@@ -66,16 +70,18 @@
 
   .latencyColumn {
     /* width: 150px; */
+    display: flex;
+    justify-content: space-between
   }
 
   .nickColumn {
-    width: 100px;
-    min-width: 110px;
-    font-size: 1.5em;
+    /* width: 100px; */
+    /* min-width: 110px; */
+    /* font-size: 1.5em; */
   }
 
   .cursive {
-    font-size: 0.8em;
+    /* font-size: 0.8em; */
     /* font-style: italic; */
   }
 
@@ -161,6 +167,7 @@
   .maxSpeed {
     font-size: 1.5em;
     font-weight: 800;
+    color: white;
   }
 
   .terminalButtons {
@@ -298,6 +305,23 @@
     width: 100%;
   }
 
+  .pressAny {}
+
+  .blink {
+    animation: blinker 1.5s linear infinite;
+    color: greenyellow;
+  }
+
+  .runningTest {
+    /* color: orange; */
+  }
+
+  @keyframes blinker {
+    50% {
+      opacity: 0;
+    }
+  }
+
   /* .mainButton:hover {
     background: linear-gradient(to bottom, #5cb811 5%, #77d42a 100%);
     background-color: #5cb811;
@@ -307,7 +331,6 @@
     position: relative;
     top: 1px;
   } */
-
 </style>
 
 <body>
@@ -331,9 +354,11 @@
       </table>
     </div>
     <div id="add" class="terminalButtons" style="display: inline-block;">
-      <a id="wakeUpPeers" class="mainButton">➕ Wake up WebRTC Peers</a>
-      <a id="startbutton" class="mainButton">▶️ START SPEED-TEST</a>
+      <div id="pressAny" class="pressAny blink">Press any key to start test</div>
+      <!-- <a id="wakeUpPeers" class="mainButton">➕ Wake up WebRTC Peers</a>
+      <a id="startbutton" class="mainButton">▶️ START SPEED-TEST</a> -->
     </div>
+    <div id="pressP" class="pressAny">Click P to wake up cloud peers for WebRTC speed tests.</div>
   </div>
 
 
@@ -361,6 +386,8 @@
 <script>
   const module = {}
   let wrtc
+  const generalUIUpdateInterval = 1000
+  let cdnPeersSending = 0
 </script>
 <script src="simplepeer.min.js"></script>
 <script src="get.js"></script>
@@ -369,7 +396,6 @@
 <script src="peerNode/traceroute.js"></script>
 <script>
   const template1 = document.getElementById("boxTemplate1")
-
   let maxUpload = document.getElementById("maxUpload")
   // let maxDownload = document.getElementById("maxDownload")
 
@@ -392,6 +418,7 @@
     // }
     return { value: Math.floor(value * 100) / 100, units, unit }
   }
+
   let localIp
   let maxDownload
   function newPeer(peer, opts) {
@@ -428,7 +455,7 @@
       maxsLabel.classList.add("inlineBlock")
 
       maxDownload = document.createElement('div')
-      maxsLabel.textContent = "Max Download: "
+      maxsLabel.textContent = "Peak Speed: "
       maxsLabel.style = "margin-right: 7px;"
       maxDownload.textContent = "0 Mbps"
       maxDownload.classList.add("inlineBlock")
@@ -437,6 +464,23 @@
       maxs.appendChild(maxsLabel)
       maxs.appendChild(maxDownload)
       description.appendChild(maxs)
+    }
+
+    if (peer.localhost) {
+      let avgs = document.createElement('span')
+      let avgsLabel = document.createElement('div')
+      avgsLabel.classList.add("inlineBlock")
+
+      avgDownload = document.createElement('div')
+      avgsLabel.textContent = "Average: "
+      avgsLabel.style = "margin-right: 7px;"
+      avgDownload.textContent = "0 Mbps"
+      avgDownload.classList.add("inlineBlock")
+      avgDownload.classList.add("maxSpeed")
+
+      avgs.appendChild(avgsLabel)
+      avgs.appendChild(avgDownload)
+      description.appendChild(avgs)
     }
 
     description.classList.add("latencyColumn")
@@ -614,7 +658,7 @@
           if (peer.downloadTotalBytes) {
             let parsedTotal = parseSpeed(peer.downloadTotalBytes * 1024)
             let parsedUpload = parseSpeed(peer.downloadLoadedBytes * 1024)
-            totals.textContent = `${parsedUpload.value} ${parsedUpload.unit}/${parsedTotal.value}${parsedTotal.unit}`
+            totals.textContent = `${parsedUpload.value} ${parsedUpload.unit}/${parsedTotal.value} ${parsedTotal.unit}`
           }
         }
 
@@ -630,6 +674,22 @@
             peer.maxUploadSpeed = peer.uploadSpeed
             maxUpload.textContent = upload.textContent
           }
+
+          peer.downloadHistoric = peer.downloadHistoric || []
+
+          let average = 0
+          if (peer.downloadSpeed > 0) {
+            peer.downloadHistoric.push(peer.downloadSpeed)
+            console.log("peer.downloadHistoric", peer.downloadHistoric)
+            average = peer.downloadHistoric.map((speed) => {
+              return speed
+            }).reduce((a, b) => {
+              return a + b
+            }, 0) / peer.downloadHistoric.length
+
+            avgDownload.textContent = (Math.floor(average) || 0) + " " + peer.downloadUnits
+          }
+
           type.textContent = "localhost"
         } else {
           if (!peer.cdn) {
@@ -674,30 +734,81 @@
 
   let limitPeers = localStorage.getItem('limitPeers');
 
-  wakeUpPeers = document.getElementById("wakeUpPeers")
+  // wakeUpPeers = document.getElementById("wakeUpPeers")
 
-  wakeUpPeers.onclick = () => {
-    // if (!limitPeers) {
-    fetch("https://atrqipagi3.execute-api.eu-west-3.amazonaws.com/dev/init")
-    limitPeers = true
-    localStorage.setItem('limitPeers', true);
-    // } else {
-    wakeUpPeers.textContent = "Request sent!"
+  wakeUpPeers = () => {
+    if (!document.peersRequested) {
 
-    // wakeUpPeers.textContent = "😞 rate-limit reached"
-    setTimeout(() => {
-      wakeUpPeers.style = "display: none;"
-    }, 2000)
-    // }
+      let alreadyRequested = sessionStorage.getItem('limitPeers');
+
+      if(alreadyRequested) {
+        document.getElementById("pressP").textContent = "WebRTC peers already requested!"
+      } else {
+        document.peersRequested = true
+        // if (!limitPeers) {
+  
+        document.getElementById("pressP").textContent = "WebRTC peers requested!"
+  
+        setTimeout(() => {
+          // wakeUpPeers.style = "display: none;"
+          document.getElementById("pressP").style = "display: none;"
+        }, 5000)
+  
+        fetch("https://atrqipagi3.execute-api.eu-west-3.amazonaws.com/dev/init")
+        limitPeers = true
+        sessionStorage.setItem('limitPeers', true);
+      }
+
+
+      
+      // } else {
+      // wakeUpPeers.textContent = "Request sent!"
+
+      // wakeUpPeers.textContent = "😞 rate-limit reached"
+
+      // }
+    }
   }
 
-  let startButton = document.getElementById("startbutton")
-  startButton.onclick = () => {
-    // console.log("START! (24MB)")
-    startButton.textContent = "🔁 Repeat Test"
-    myPeer.cdnPeers.forEach((peer) => {
-      peer.startDownloadFromCDN()
-    })
+
+  // let startButton = document.getElementById("startbutton")
+  // startButton.onclick = () => {
+  //   // console.log("START! (24MB)")
+  //   startButton.textContent = "🔁 Repeat Test"
+  //   myPeer.cdnPeers.forEach((peer) => {
+  //     peer.startDownloadFromCDN()
+  //   })
+  // }
+
+  document.speedStarted = false
+  document.peersRequested = false
+  document.onkeypress = function (e) {
+    e = e || window.event;
+    console.log("KEYPRESS", e.keyCode)
+
+    if (e.keyCode === 112 || e.keyCode === 80) {
+      wakeUpPeers()
+      return
+    }
+
+    if (!document.speedStarted) {
+      document.speedStarted = true
+      myPeer.cdnPeers.forEach((peer) => {
+        peer.startDownloadFromCDN()
+      })
+      document.getElementById("pressAny").classList.add("runningTest")
+      document.getElementById("pressAny").innerHTML = "Running test..."
+    }
+
+    if (e.keyCode == 32 && e.target == document.body) {
+      e.preventDefault();
+    }
+    // use e.keyCode
+  };
+
+  function testCompleted() {
+    document.getElementById("pressAny").innerHTML = "Test completed"
+    document.getElementById("pressAny").classList.remove("blink")
   }
 
   // for (let i = 0; i < 3; i++) {
@@ -709,10 +820,9 @@
 <script>
   get("https://utils.s.r3js.com/geo").then(geo => {
     console.log("GEO", geo)
-    localIp.textContent = `Public ip: ${geo.ip}`
+    localIp.textContent = `You public ip is: ${geo.ip}`
     traceroute(geo)
   })
-
 </script>
 
 </html>
