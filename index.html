@@ -358,7 +358,7 @@
       <!-- <a id="wakeUpPeers" class="mainButton">➕ Wake up WebRTC Peers</a>
       <a id="startbutton" class="mainButton">▶️ START SPEED-TEST</a> -->
     </div>
-    <div id="pressP" class="pressAny">Click P to wake up cloud peers for WebRTC speed tests.</div>
+    <!-- <div id="pressP" class="pressAny">Press P to wake up cloud peers for WebRTC speed tests.</div> -->
   </div>
 
 
@@ -423,7 +423,6 @@
   let maxDownload
   function newPeer(peer, opts) {
     let peerId = peer.id
-    console.log("NEW PEER HTML", peerId)
 
     let tableRow = document.createElement('tr')
 
