@@ -2,7 +2,16 @@
 <html dir="ltr" lang="es">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0,viewport-fit=cover" />
-
+<!-- Google Tag Manager -->
+<script>(function (w, d, s, l, i) {
+    w[l] = w[l] || []; w[l].push({
+      'gtm.start':
+        new Date().getTime(), event: 'gtm.js'
+    }); var f = d.getElementsByTagName(s)[0],
+      j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+        'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+  })(window, document, 'script', 'dataLayer', 'GTM-WXPVPP6Z');</script>
+<!-- End Google Tag Manager -->
 <style>
   body {
     background-color: #1c2230;
@@ -334,6 +343,10 @@
 </style>
 
 <body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WXPVPP6Z" height="0" width="0"
+      style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
   <div id="main">
     <h2 id="maxUpload"></h2>
     <!-- <h2 id="maxDownload"></h2> -->
@@ -739,26 +752,26 @@
 
       let alreadyRequested = sessionStorage.getItem('limitPeers');
 
-      if(alreadyRequested) {
+      if (alreadyRequested) {
         document.getElementById("pressP").textContent = "WebRTC peers already requested!"
       } else {
         document.peersRequested = true
         // if (!limitPeers) {
-  
+
         document.getElementById("pressP").textContent = "WebRTC peers requested!"
-  
+
         setTimeout(() => {
           // wakeUpPeers.style = "display: none;"
           document.getElementById("pressP").style = "display: none;"
         }, 5000)
-  
+
         fetch("https://atrqipagi3.execute-api.eu-west-3.amazonaws.com/dev/init")
         limitPeers = true
         sessionStorage.setItem('limitPeers', true);
       }
 
 
-      
+
       // } else {
       // wakeUpPeers.textContent = "Request sent!"
 

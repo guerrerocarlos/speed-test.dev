@@ -3,7 +3,7 @@
   let i = 0
   myPeer.cdnPeers = []
   let cdns = [
-    { name: "CloudFront", url: "https://cloudfront.speed-test.dev" },
+    // { name: "CloudFront", url: "https://cloudfront.speed-test.dev" },
     { name: "CloudFlare", url: "https://static.speed-test.dev" }
   ]
   cdns.forEach((cdn) => {
