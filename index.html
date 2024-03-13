@@ -791,9 +791,7 @@
   //   })
   // }
 
-  document.speedStarted = false
-  document.peersRequested = false
-  document.onkeypress = function (e) {
+  function startTest(e) {
     e = e || window.event;
     console.log("KEYPRESS", e.keyCode)
 
@@ -816,6 +814,12 @@
     }
     // use e.keyCode
   };
+
+  document.speedStarted = false
+  document.peersRequested = false
+  document.onkeypress = startTest
+  document.ontouchstart = startTest
+  document.onclick = startTest
 
   function testCompleted() {
     document.getElementById("pressAny").innerHTML = "Test completed"
