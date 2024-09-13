@@ -153,7 +153,7 @@ function peerNode(SimplePeer, WebSocket, wrtc, html, opts) {
 
     const p = new SimplePeer({
       initiator: (opts && opts.receiver) ? false : true,
-      trickle: false,
+      // trickle: false,
       wrtc: wrtc
     })
 
